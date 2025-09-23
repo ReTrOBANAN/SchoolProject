@@ -83,6 +83,7 @@ async def dologin(
     auth: str = Form(...),
     password: str = Form(...)
 ):
+    error = True
     with Session(init.engine) as conn:
         stmt = select(init.User).where(init.User.username == auth)
         data = conn.execute(stmt).fetchall()
