@@ -25,6 +25,15 @@ class Question(Base):
     def __repr__(self) -> str:
         return f"Question(id={self.id!r}, owner={self.owner!r}, subject={self.subject!r}, title={self.title!r}, description={self.description!r})"
 
+class Comment(Base):
+    __tablename__ = "Comments"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    question_id: Mapped[int]
+    owner: Mapped[str] = mapped_column(String(30))
+    description: Mapped[str] = mapped_column(String(1000))
+    def __repr__(self) -> str:
+        return f"Question(id={self.id!r}, owner={self.owner!r}, question_id={self.question_id!r}, description={self.description!r})"
+
 current_dir = os.path.dirname(os.path.abspath(__file__))
 db_path = os.path.join(current_dir, 'users.db')
 engine = create_engine(f'sqlite:///{db_path}')

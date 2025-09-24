@@ -16,6 +16,7 @@ import uvicorn
 
 import os
 from pathlib import Path
+from typing import Optional
 
 app = FastAPI()
 BASE_DIR = Path(__file__).resolve().parent
@@ -155,24 +156,63 @@ async def main(request: Request):
     else:
         return RedirectResponse(url="/login", status_code=303)
     
-@app.get("/question/{note_id}")
+@app.get("/question/{note_id}", tags="Страница вопроса")
 async def question_page(request: Request, note_id: int):
     if request.cookies.get("id"):
         with Session(init.engine) as conn:
+            # Получаем вопрос
             stmt = select(
                 init.Question.owner,
                 init.Question.subject,
                 init.Question.title,
-                init.Question.description
+                init.Question.description,
+                init.Question.id,
             ).where(init.Question.id == note_id)
             data = conn.execute(stmt).fetchall()
-            result = [data[0].owner, data[0].subject, data[0].title, data[0].description]
-            conn.commit()
-            return templates.TemplateResponse("question.html", {"request": request,
-                                                                "result": result})
+            
+            if not data:
+                return RedirectResponse(url="/", status_code=303)
+                
+            result = [data[0].owner, data[0].subject, data[0].title, data[0].description, data[0].id]
+            
+        with Session(init.engine) as conn:
+            # Получаем комментарии - исправленный запрос
+            stmt = select(
+                init.Comment.owner,
+                init.Comment.description
+            ).where(init.Comment.question_id == note_id).order_by(init.Comment.id.desc())
+            data = conn.execute(stmt).fetchall()
+            
+            comments = []
+            for row in data:
+                comments.append({
+                    "owner": row.owner,  # Теперь row имеет атрибуты owner и description
+                    "description": row.description
+                })
+            
+        return templates.TemplateResponse("question.html", {
+            "request": request,
+            "result": result,
+            "comments": comments,
+        })
     else:
         return RedirectResponse(url="/login", status_code=303)
-
+    
+@app.post("/addcomment", tags="Добавить комментарий")
+async def addcomment(
+    request: Request,
+    comment: str = Form(...),
+    id: int = Form(...),
+):
+    with Session(init.engine) as conn:
+        comments = init.Comment(
+            question_id=id,
+            owner=function.decrypt(request.cookies.get("username")),
+            description=comment,
+        )
+        conn.add(comments)
+        conn.commit()
+        return RedirectResponse(url=f'/question/{id}', status_code=303)
 
 if __name__ == "__main__":
     init.Base.metadata.create_all(init.engine)

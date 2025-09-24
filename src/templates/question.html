@@ -12,5 +12,21 @@
     <p>{{ result[3] }}</p>
     
     <a href="/">На главную</a>
+
+    <form class="auth-form" method="post" action="/addcomment">
+        <div>
+            <textarea class="input" name="comment" placeholder="Введите комментарий" required></textarea>
+        </div>
+        <!-- Скрытое поле для передачи result[4] -->
+        <input type="hidden" name="id" value="{{ result[4] }}">
+        <button class="btn" type="submit">Отправить</button>
+    </form>
+
+    {% for comment in comments %}
+        <div>
+            <p><strong>Владелец:</strong> {{ comment.owner }}
+            <p><strong>Комментарий</strong> {{ comment.description }}
+        </div>
+    {% endfor %}
 </body>
 </html>
