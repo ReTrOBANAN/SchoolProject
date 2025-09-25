@@ -7,7 +7,6 @@ inputs.forEach(input => {
 })
 
 
-
 authForm.addEventListener('submit', async (e) => {
     e.preventDefault()
 
@@ -17,10 +16,12 @@ authForm.addEventListener('submit', async (e) => {
         body: formData
     });
 
+
     if (response.redirected) {
-        window.location.href = response.url;
+        window.location.href = response.url
     } else {
         const data = await response.json();
-        document.getElementById("errorMessage").innerText = data.error;
+        document.getElementById('password').value = ''
+        document.getElementById("errorMessage").innerText = data.error
     }
 })

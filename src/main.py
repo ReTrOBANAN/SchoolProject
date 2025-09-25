@@ -49,8 +49,8 @@ async def doregister(
         stmt = select(init.User).where(init.User.username == login)
         data = conn.execute(stmt).fetchall()
         if data:
-            error_msg = "Пользователь с таким именем уже есть"
-            return RedirectResponse(url="/register", status_code=303)
+            return JSONResponse({"error": "Пользователь с таким логином уже есть"}, status_code=400)
+
         else:
             user = init.User(
                 name=name,
@@ -94,7 +94,7 @@ async def dologin(
             redirect.set_cookie(key="username", value=function.encrypt(data[0][0].username))
             return redirect
         else:
-            return JSONResponse({"error": "Неверный логин или пароль"}, status_code=400) # мой код
+            return JSONResponse({"error": "Неверный логин или пароль"}, status_code=400)
 
 @app.get("/add", tags="Добавить вопрос")
 async def add(request: Request):
