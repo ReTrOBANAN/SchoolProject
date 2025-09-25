@@ -10,7 +10,7 @@
 <!--    <div class="login-button-container">-->
 <!--        <a href="/logout" class="login-button">Выйти</a>-->
 <!--    </div>-->
-    <h1>Добро пожаловать, {{ username }}</h1>
+    <h1>Добро пожаловать, {{ name }}</h1>
     {% for note in result %}
         <div>
             <p><strong>Владелец:</strong> {{ note.owner }}
@@ -22,5 +22,6 @@
     {% endfor %}
 <a href="/logout">выйти</a>
 <a href="/add">Добавить пароль</a>
+<a href="/profile/{{ username }}">Профиль</a>
 </body>
 </html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Профиль {{account[1]}}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/auth.css') }}">
+</head>
+<body>
+<!--    <div class="login-button-container">-->
+<!--        <a href="/logout" class="login-button">Выйти</a>-->
+<!--    </div>-->
+            <p><strong>id</strong> {{ account[0] }}
+            <p><strong>Имя</strong> {{ account[1] }}
+            <p><strong>username</strong> {{ account[2] }}
+<a href="/logout">выйти</a>
+<a href="/">Назад</a>
+</body>
+</html>

@@ -29,6 +29,7 @@ async def logout(request: Request):
     redirect = RedirectResponse(url="/login", status_code=303)
     # Устанавливаем куки
     redirect.delete_cookie(key="id")
+    redirect.delete_cookie(key="name")
     redirect.delete_cookie(key="username")
     return redirect
 
@@ -68,6 +69,7 @@ async def doregister(
     redirect = RedirectResponse(url="/", status_code=303)
     # Устанавливаем куки
     redirect.set_cookie(key="id", value=str(id))
+    redirect.set_cookie(key="name", value=function.encrypt(login))
     redirect.set_cookie(key="username", value=function.encrypt(login))
     return redirect
 
@@ -93,6 +95,7 @@ async def dologin(
             redirect = RedirectResponse(url="/", status_code=303)
             # Устанавливаем куки
             redirect.set_cookie(key="id", value=str(data[0][0].id))
+            redirect.set_cookie(key="name", value=function.encrypt(data[0][0].name))
             redirect.set_cookie(key="username", value=function.encrypt(data[0][0].username))
             return redirect
         else:
@@ -152,6 +155,7 @@ async def main(request: Request):
                 })
             return templates.TemplateResponse("main.html", {"request": request,
                                                             "username": function.decrypt(request.cookies.get("username")),
+                                                            "name": function.decrypt(request.cookies.get("name")),
                                                             "result": result})
     else:
         return RedirectResponse(url="/login", status_code=303)
@@ -213,6 +217,20 @@ async def addcomment(
         conn.add(comments)
         conn.commit()
         return RedirectResponse(url=f'/question/{id}', status_code=303)
+    
+@app.get("/profile/{username}", tags=["Профиль"])
+async def profile(request: Request, username: str):
+    with Session(init.engine) as conn:
+            stmt = select(
+                init.User.id,
+                init.User.name,
+            ).where(init.User.username == username)
+            data = conn.execute(stmt).fetchall()
+            account = [data[0].id, data[0].name, username]
+    return templates.TemplateResponse(
+        "profile.html", 
+        {"request": request, "account": account}
+    )
 
 if __name__ == "__main__":
     init.Base.metadata.create_all(init.engine)
