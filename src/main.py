@@ -94,8 +94,6 @@ async def dologin(
             redirect.set_cookie(key="username", value=function.encrypt(data[0][0].username))
             return redirect
         else:
-            # print("Неверный логин или пароль")
-            # return RedirectResponse(url="/login", status_code=303) твой код
             return JSONResponse({"error": "Неверный логин или пароль"}, status_code=400) # мой код
 
 @app.get("/add", tags="Добавить вопрос")
