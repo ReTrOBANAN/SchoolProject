@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Form, Response, requests
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from urllib.parse import unquote
@@ -94,8 +94,9 @@ async def dologin(
             redirect.set_cookie(key="username", value=function.encrypt(data[0][0].username))
             return redirect
         else:
-            print("Неверный логин или пароль")
-            return RedirectResponse(url="/login", status_code=303)
+            # print("Неверный логин или пароль")
+            # return RedirectResponse(url="/login", status_code=303) твой код
+            return JSONResponse({"error": "Неверный логин или пароль"}, status_code=400) # мой код
 
 @app.get("/add", tags="Добавить вопрос")
 async def add(request: Request):
