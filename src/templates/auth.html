@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', path='/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='/auth.css') }}">
+    <script src="{{ url_for('static', path='/js/auth.js') }}" defer></script>
     <title>Вход в систему</title>
 </head>
 <body>
     <div class="auth-container">
         <div class="auth">
             <h1 class="auth-title">Вход</h1>
-            <form class="auth-form" method="post" action="/dologin">
+            <form id="loginForm" class="auth-form" method="post" action="/dologin">
                 <div class="form-login">
                     <label class="form-login-title" for="login">Логин</label>
                     <input class="input" name="auth" id="login" type="text" placeholder="Введите логин" required>
@@ -23,7 +24,7 @@
                 <button class="btn" type="submit">Войти</button>
             </form>
             <a class="auth-link link" href="/register">Регистрация</a>
-            <p class="error">Неверный логин или пароль</p>
+            <p id="errorMessage" class="error"></p>
         </div>
     </div>
 </body>

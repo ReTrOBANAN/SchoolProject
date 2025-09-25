@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Form, Response, requests
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from urllib.parse import unquote
@@ -51,8 +51,8 @@ async def doregister(
         stmt = select(init.User).where(init.User.username == login)
         data = conn.execute(stmt).fetchall()
         if data:
-            error_msg = "Пользователь с таким именем уже есть"
-            return RedirectResponse(url="/register", status_code=303)
+            return JSONResponse({"error": "Пользователь с таким логином уже есть"}, status_code=400)
+
         else:
             user = init.User(
                 name=name,
@@ -99,8 +99,7 @@ async def dologin(
             redirect.set_cookie(key="username", value=function.encrypt(data[0][0].username))
             return redirect
         else:
-            print("Неверный логин или пароль")
-            return RedirectResponse(url="/login", status_code=303)
+            return JSONResponse({"error": "Неверный логин или пароль"}, status_code=400)
 
 @app.get("/add", tags="Добавить вопрос")
 async def add(request: Request):
