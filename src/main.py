@@ -23,10 +23,19 @@ BASE_DIR = Path(__file__).resolve().parent
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
+levels = [
+    {"title": "Новичок", "min_points": 0, "background": "#DBDBDB"},
+    {"title": "Любознательный", "min_points": 25, "background": "#FFFFFF"},
+    {"title": "Активный участник", "min_points": 50, "background": "#FF5B5B"},
+    {"title": "Эксперт", "min_points": 100, "background": "#9C9DFF"},
+    {"title": "Мастер", "min_points": 200, "background": "#EF89FF"},
+    {"title": "Гуру", "min_points": 500, "background": "#FF4BE7"},
+]
+
 @app.get("/logout", tags="Выход")
 async def logout(request: Request):
     # Создаем редирект-ответ
-    redirect = RedirectResponse(url="/login", status_code=303)
+    redirect = RedirectResponse(url="/", status_code=303)
     # Устанавливаем куки
     redirect.delete_cookie(key="id")
     redirect.delete_cookie(key="name")
@@ -57,7 +66,10 @@ async def doregister(
             user = init.User(
                 name=name,
                 username=login,
-                password=function.hash_password(password)
+                password=function.hash_password(password),
+                title="Участник",
+                background="#DBDBDB",
+                min_points=0
             )
             conn.add(user)
             conn.commit()
@@ -69,7 +81,7 @@ async def doregister(
     redirect = RedirectResponse(url="/", status_code=303)
     # Устанавливаем куки
     redirect.set_cookie(key="id", value=str(id))
-    redirect.set_cookie(key="name", value=function.encrypt(login))
+    redirect.set_cookie(key="name", value=function.encrypt(name))
     redirect.set_cookie(key="username", value=function.encrypt(login))
     return redirect
 
@@ -108,56 +120,108 @@ async def add(request: Request):
     else:
         return RedirectResponse(url="/login", status_code=303)
 
-@app.post("/doadd", tags="Добавить вопрос")
+@app.post("/doadd", tags=["Добавить вопрос"])
 async def doadd(
     request: Request,
     subject: str = Form(...),
     title: str = Form(...),
     description: str = Form(...),
 ):
-    with Session(init.engine) as conn:
-        stmt = select(init.Question).where(init.Question.title == title, init.Question.description == description)
-        data = conn.execute(stmt).fetchall()
-        if data:
-            print("Такой вопрос уже есть!")
-        else:
-            question = init.Question(
-                owner=function.decrypt(request.cookies.get("username")),
-                subject=subject,
-                title=title,
-                description=description,
+    try:
+        with Session(init.engine) as conn:
+            # Проверка существующего вопроса
+            stmt = select(init.Question).where(
+                init.Question.title == title, 
+                init.Question.description == description
             )
-            conn.add(question)
-        conn.commit()
+            data = conn.execute(stmt).first()
+            
+            if data:
+                print("Такой вопрос уже есть!")
+                # Возможно, стоит вернуть сообщение об ошибке вместо редиректа
+                return RedirectResponse(url="/?error=question_exists", status_code=303)
+            else:
+                # Добавление нового вопроса
+                question = init.Question(
+                    owner=function.decrypt(request.cookies.get("username")),
+                    subject=subject,
+                    title=title,
+                    description=description,
+                )
+                conn.add(question)
+                conn.commit()  # Важно: commit после добавления
+            
+            # Обновление баллов пользователя
+            user_id = request.cookies.get("id")
+            if not user_id:
+                return RedirectResponse(url="/login", status_code=303)
+                
+            select_stmt = select(init.User).where(init.User.id == user_id)
+            user_data = conn.execute(select_stmt).first()
+            
+            if not user_data:
+                return RedirectResponse(url="/login", status_code=303)
+                
+            user = user_data[0] if isinstance(user_data, tuple) else user_data
+            min_points = int(user.min_points) + 1
+            
+            # Обновление уровня пользователя
+            # Предполагается, что levels - это список словарей с ключами 'title', 'min_points', 'background'
+            for level in levels:
+                if (level.get('title') != user.title and 
+                    level.get('min_points') <= min_points):
+                    
+                    update_stmt = (
+                        update(init.User)
+                        .where(init.User.id == user_id)
+                        .values(
+                            title=level.get('title'),
+                            background=level.get('background'),
+                            min_points=min_points
+                        )
+                    )
+                    conn.execute(update_stmt)
+                    conn.commit()
+                    break  # Прерываем цикл после первого подходящего уровня
+            
         return RedirectResponse(url="/", status_code=303)
+        
+    except Exception as e:
+        print(f"Ошибка при добавлении вопроса: {e}")
+        return RedirectResponse(url="/?error=server_error", status_code=303)
 
 @app.get("/", tags="Главная")
 async def main(request: Request):
-    if request.cookies.get("id"):
-        with Session(init.engine) as conn:
-            stmt = select(
-                init.Question.id,
-                init.Question.owner,
-                init.Question.subject,
-                init.Question.title,
-                init.Question.description
-            ).order_by(init.Question.id.desc())
-            data = conn.execute(stmt).fetchall()
-            result = []
-            for row in data:
-                result.append({
-                    "id": row.id,
-                    "owner": row.owner,
-                    "subject": row.subject,
-                    "title": row.title,
-                    "description": row.description
-                })
+    with Session(init.engine) as conn:
+        stmt = select(
+            init.Question.id,
+            init.Question.owner,
+            init.Question.subject,
+            init.Question.title,
+            init.Question.description,
+            init.Question.created_at,
+        ).order_by(init.Question.id.desc())
+        data = conn.execute(stmt).fetchall()
+        result = []
+        for row in data:
+            result.append({
+                "id": row.id,
+                "owner": row.owner,
+                "subject": row.subject,
+                "title": row.title,
+                "description": row.description,
+                "created": row.created_at
+            })
+        if request.cookies.get("id"):
             return templates.TemplateResponse("main.html", {"request": request,
                                                             "username": function.decrypt(request.cookies.get("username")),
                                                             "name": function.decrypt(request.cookies.get("name")),
                                                             "result": result})
-    else:
-        return RedirectResponse(url="/login", status_code=303)
+        else:
+            return templates.TemplateResponse("main.html", {"request": request,
+                                                            "username": None,
+                                                            "name": None,
+                                                            "result": result})  
     
 @app.get("/question/{note_id}", tags="Страница вопроса")
 async def question_page(request: Request, note_id: int):

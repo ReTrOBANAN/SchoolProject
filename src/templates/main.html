@@ -20,14 +20,13 @@
             <div class="header-actions">
                 <button id="create" class="btn header-actions-create" href="">Создать вопрос</button>
             </div>
-            <div class="header-link">
-                <a href="/login" class="link">Вход</a>
-            </div>
-            <div class="header-link">
-                <a href="/logout" class="link">Выход</a>
-            </div>
-            <div class="header-link">
-                <a href="/profile/{{ username }}" class="link">{{ name }}</a>
+        </div>
+            <div class="header-links">
+                {% if username %}
+                    <a href="/logout" class="link">Выйти</a>
+                {% else %}
+                    <a href="/login" class="link">Войти</a>
+                {% endif %}
             </div>
         </header>
     </div>
