@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from urllib.parse import unquote
+from datetime import datetime
 
 from requests import session
 from sqlalchemy.future import select
@@ -217,7 +218,7 @@ async def get_questions():
                 "created_at": row.created_at.isoformat() if row.created_at else None,
             })
         return JSONResponse(content=questions)
-    
+
 @app.get("/", tags="Главная")
 async def main(request: Request):
         if request.cookies.get("id"):
@@ -228,7 +229,7 @@ async def main(request: Request):
             return templates.TemplateResponse("main.html", {"request": request,
                                                             "username": None,
                                                             "name": None,})  
-    
+ 
 @app.get("/question/{note_id}", tags="Страница вопроса")
 async def question_page(request: Request, note_id: int):
     if request.cookies.get("id"):
