@@ -69,7 +69,7 @@ async def doregister(
     redirect = RedirectResponse(url="/", status_code=303)
     # Устанавливаем куки
     redirect.set_cookie(key="id", value=str(id))
-    redirect.set_cookie(key="name", value=function.encrypt(login))
+    redirect.set_cookie(key="name", value=function.encrypt(name))
     redirect.set_cookie(key="username", value=function.encrypt(login))
     return redirect
 
