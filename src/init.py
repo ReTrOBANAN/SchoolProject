@@ -24,12 +24,13 @@ class Question(Base):
     __tablename__ = "questions"
     id: Mapped[int] = mapped_column(primary_key=True)
     owner: Mapped[str] = mapped_column(String(30))
+    owner_name: Mapped[str] = mapped_column(String(30))
+    grade: Mapped[int]
     subject: Mapped[str] = mapped_column(String(20))
-    title: Mapped[str] = mapped_column(String(30))
     description: Mapped[str] = mapped_column(String(1000))
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     def __repr__(self) -> str:
-        return f"Question(id={self.id!r}, owner={self.owner!r}, subject={self.subject!r}, title={self.title!r}, description={self.description!r}, created={self.created_at!r})"
+        return f"Question(id={self.id!r}, owner={self.owner!r}, owner_name={self.owner_name!r}, subject={self.subject!r}, title={self.title!r}, description={self.description!r}, created={self.created_at!r})"
 
 class Comment(Base):
     __tablename__ = "Comments"

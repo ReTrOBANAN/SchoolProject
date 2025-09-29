@@ -55,20 +55,20 @@
                 <button class="create-close-btn" id="close">
                     <img src="{{ url_for('static', path='imgs/close.svg') }}" alt="">
                 </button>
-                <form action="" method="post" class="create-form">
+                <form action="/doadd" method="post" class="create-form">
                     <div class="create-form-text">
                         <label for="questionText">Какой у вас вопрос?</label>
-                        <textarea class="form-text-textarea" name="questionText" id="questionText"></textarea>
+                        <textarea class="form-text-textarea" name="description" id="questionText"></textarea>
                     </div>
                     <div class="create-form-section">
-                        <select class="item-filter-subject input" id="subject-create">
+                        <select class="item-filter-subject input" id="subject-create" name="subject">
                             <option value="math" selected>Математика</option>
                             <option value="russian">Русский язык</option>
                             <option value="english">Английский язык</option>
                             <option value="biology">Биология</option>
                             <option value="physics">Физика</option>
                         </select>
-                        <select class="item-filter-grade input" id="grade-create">
+                        <select class="item-filter-grade input" id="grade-create" name="grade">
                             <option value="1" selected>1 класс</option>
                             <option value="2">2 класс</option>
                             <option value="3">3 класс</option>

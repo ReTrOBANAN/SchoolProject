@@ -18,6 +18,7 @@ import uvicorn
 import os
 from pathlib import Path
 from typing import Optional
+from datetime import datetime
 
 app = FastAPI()
 BASE_DIR = Path(__file__).resolve().parent
@@ -125,14 +126,13 @@ async def add(request: Request):
 async def doadd(
     request: Request,
     subject: str = Form(...),
-    title: str = Form(...),
+    grade: str = Form(...),
     description: str = Form(...),
 ):
     try:
         with Session(init.engine) as conn:
             # Проверка существующего вопроса
             stmt = select(init.Question).where(
-                init.Question.title == title, 
                 init.Question.description == description
             )
             data = conn.execute(stmt).first()
@@ -145,8 +145,9 @@ async def doadd(
                 # Добавление нового вопроса
                 question = init.Question(
                     owner=function.decrypt(request.cookies.get("username")),
+                    owner_name=function.decrypt(request.cookies.get("name")),
                     subject=subject,
-                    title=title,
+                    grade=grade,
                     description=description,
                 )
                 conn.add(question)
@@ -197,8 +198,9 @@ async def get_questions():
         stmt = select(
             init.Question.id,
             init.Question.owner,
+            init.Question.owner_name,
             init.Question.subject,
-            init.Question.title,
+            init.Question.grade,
             init.Question.description,
             init.Question.created_at,
         ).order_by(init.Question.id.desc())
@@ -209,7 +211,9 @@ async def get_questions():
             questions.append({
                 "id": row.id,
                 "username": row.owner,
+                "name": row.owner_name,
                 "subject": row.subject,  
+                "grade": row.grade,
                 "text": row.description,
                 "created_at": row.created_at.isoformat() if row.created_at else None,
             })
@@ -224,8 +228,8 @@ async def main(request: Request):
         else:
             return templates.TemplateResponse("main.html", {"request": request,
                                                             "username": None,
-                                                            "name": None,})
-    
+                                                            "name": None,})  
+ 
 @app.get("/question/{note_id}", tags="Страница вопроса")
 async def question_page(request: Request, note_id: int):
     if request.cookies.get("id"):
