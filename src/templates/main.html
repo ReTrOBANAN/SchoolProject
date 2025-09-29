@@ -16,15 +16,16 @@
             </div>
             <input type="text" id="search" class="input search-input" placeholder="Может вопрос уже задан?">
             <div class="header-actions">
-                <button id="create" class="btn header-actions-create">Создать вопрос</button>
-                <a href="/login" class="link">Вход</a>
+                <button id="create" class="btn header-actions-create" href="">Создать вопрос</button>
             </div>
-            <!-- <div class="header-link">
-                <a href="/logout" class="link">Выход</a>
+        </div>
+            <div class="header-links">
+                {% if username %}
+                    <a href="/logout" class="link">Выйти</a>
+                {% else %}
+                    <a href="/login" class="link">Войти</a>
+                {% endif %}
             </div>
-            <div class="header-link">
-                <a href="/profile/{{ username }}" class="link">{{ name }}</a>
-            </div> -->
         </header>
     </div>
     <main class="content">
