@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from urllib.parse import unquote
+from datetime import datetime
 
 from requests import session
 from sqlalchemy.future import select
@@ -151,38 +152,38 @@ async def doadd(
                 conn.add(question)
                 conn.commit()  # Важно: commit после добавления
             
-            # Обновление баллов пользователя
-            user_id = request.cookies.get("id")
-            if not user_id:
-                return RedirectResponse(url="/login", status_code=303)
+            # # Обновление баллов пользователя
+            # user_id = request.cookies.get("id")
+            # if not user_id:
+            #     return RedirectResponse(url="/login", status_code=303)
                 
-            select_stmt = select(init.User).where(init.User.id == user_id)
-            user_data = conn.execute(select_stmt).first()
+            # select_stmt = select(init.User).where(init.User.id == user_id)
+            # user_data = conn.execute(select_stmt).first()
             
-            if not user_data:
-                return RedirectResponse(url="/login", status_code=303)
+            # if not user_data:
+            #     return RedirectResponse(url="/login", status_code=303)
                 
-            user = user_data[0] if isinstance(user_data, tuple) else user_data
-            min_points = int(user.min_points) + 1
+            # user = user_data[0] if isinstance(user_data, tuple) else user_data
+            # min_points = int(user.min_points) + 1
             
-            # Обновление уровня пользователя
-            # Предполагается, что levels - это список словарей с ключами 'title', 'min_points', 'background'
-            for level in levels:
-                if (level.get('title') != user.title and 
-                    level.get('min_points') <= min_points):
+            # # Обновление уровня пользователя
+            # # Предполагается, что levels - это список словарей с ключами 'title', 'min_points', 'background'
+            # for level in levels:
+            #     if (level.get('title') != user.title and 
+            #         level.get('min_points') <= min_points):
                     
-                    update_stmt = (
-                        update(init.User)
-                        .where(init.User.id == user_id)
-                        .values(
-                            title=level.get('title'),
-                            background=level.get('background'),
-                            min_points=min_points
-                        )
-                    )
-                    conn.execute(update_stmt)
-                    conn.commit()
-                    break  # Прерываем цикл после первого подходящего уровня
+            #         update_stmt = (
+            #             update(init.User)
+            #             .where(init.User.id == user_id)
+            #             .values(
+            #                 title=level.get('title'),
+            #                 background=level.get('background'),
+            #                 min_points=min_points
+            #             )
+            #         )
+            #         conn.execute(update_stmt)
+            #         conn.commit()
+            #         break  # Прерываем цикл после первого подходящего уровня
             
         return RedirectResponse(url="/", status_code=303)
         
@@ -190,8 +191,8 @@ async def doadd(
         print(f"Ошибка при добавлении вопроса: {e}")
         return RedirectResponse(url="/?error=server_error", status_code=303)
 
-@app.get("/", tags="Главная")
-async def main(request: Request):
+@app.get("/api/questions", tags=["API"])
+async def get_questions():
     with Session(init.engine) as conn:
         stmt = select(
             init.Question.id,
@@ -202,26 +203,28 @@ async def main(request: Request):
             init.Question.created_at,
         ).order_by(init.Question.id.desc())
         data = conn.execute(stmt).fetchall()
-        result = []
+
+        questions = []
         for row in data:
-            result.append({
+            questions.append({
                 "id": row.id,
-                "owner": row.owner,
-                "subject": row.subject,
-                "title": row.title,
-                "description": row.description,
-                "created": row.created_at
+                "username": row.owner,
+                "subject": row.subject,  
+                "text": row.description,
+                "created_at": row.created_at.isoformat() if row.created_at else None,
             })
+        return JSONResponse(content=questions)
+
+@app.get("/", tags="Главная")
+async def main(request: Request):
         if request.cookies.get("id"):
             return templates.TemplateResponse("main.html", {"request": request,
                                                             "username": function.decrypt(request.cookies.get("username")),
-                                                            "name": function.decrypt(request.cookies.get("name")),
-                                                            "result": result})
+                                                            "name": function.decrypt(request.cookies.get("name")),})
         else:
             return templates.TemplateResponse("main.html", {"request": request,
                                                             "username": None,
-                                                            "name": None,
-                                                            "result": result})  
+                                                            "name": None,})
     
 @app.get("/question/{note_id}", tags="Страница вопроса")
 async def question_page(request: Request, note_id: int):

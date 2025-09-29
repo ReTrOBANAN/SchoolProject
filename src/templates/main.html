@@ -17,11 +17,8 @@
             <input type="text" id="search" class="input search-input" placeholder="Может вопрос уже задан?">
             <div class="header-actions">
                 <button id="create" class="btn header-actions-create" href="">Создать вопрос</button>
-            </div>
-        </div>
-            <div class="header-links">
                 {% if username %}
-                    <a href="/logout" class="link">Выйти</a>
+                    <a href="/profile/{{ username }}" class="link">{{ name }}</a>
                 {% else %}
                     <a href="/login" class="link">Войти</a>
                 {% endif %}
@@ -49,6 +46,7 @@
             </div>
             <div>
                 <ul id="questions-list" class="questions-content-list">
+                    {{ result }}
                 </ul>
             </div>
         </section>
