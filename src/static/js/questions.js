@@ -52,7 +52,7 @@ gradeSelect.addEventListener('change', applyFilters)
 function render(questions = []) {
     console.log(questions)
     if (questions.length === 0) {
-        questionsList.innerHTML = `<p style="text-align: center;">Таких вопросов нет</p>`
+        questionsList.innerHTML = `<p style="text-align: center;">Вопросов нет</p>`
     }
     else {
         const html = questions.map(toHTML).join('')
@@ -63,16 +63,16 @@ function render(questions = []) {
 function toHTML(question) {
     return `<li class="questions-content-item">
         <div class="questions-item-header">
-            <div class="item-header-name">${question.username}</div>
+            <div class="item-header-name">${question.name} (${question.username})</div>
             <div class="item-header-subject">${question.subject}</div>
-            <div class="item-header-grade">${question.grade}</div>
-            <div class="item-header-time">${question.time}</div>
+            <div class="item-header-grade">${question.grade} класс</div>
+            <div class="item-header-time">${question.created_at}</div>
         </div>
         <div class="questions-item-body">
             ${question.text}
         </div>
         <div class="questions-item-footer">
-            <a class="btn" href="">Ответить</a>
+            <a class="btn" href="question/${question.id}">Ответить</a>
         </div>
     </li>`
 }
