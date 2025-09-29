@@ -9,11 +9,18 @@ body {
     align-items: center;
     padding-top: 15px;
     padding-bottom: 15px;
-    column-gap: 50px;
+    column-gap: 40px;
+    flex-wrap: wrap;
 }
 
-.header-search {
+.search-input {
     flex: 1;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    column-gap: 20px;
 }
 
 .header-actions-create {
@@ -22,8 +29,8 @@ body {
 
 /* Questions */
 .questions {
-    padding-top: 30px;
-    padding-bottom: 30px;
+    padding-top: 10px;
+    padding-bottom: 20px;
     display: flex;
     flex-direction: column;
     row-gap: 30px;
@@ -61,81 +68,118 @@ body {
 }
 
 /* create */
-.create {
-    padding: 55px;
+.overlay {
     position: fixed;
-    z-index: 1000;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 65vw;
-    height: 65vh;
-    background-color: #fff;
+    display: none;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
 }
+.overlay.active {
+    display: block;
+}
+.create {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--color-light);
+    width: 50%;
+    height: 50%;
+    border-radius: 10px;
+    padding: 45px 15px;
+}
+
 .create-form {
     display: flex;
     flex-direction: column;
     row-gap: 20px;
+    height: 100%;
 }
-.create-textarea {
-    width: 100%;
-    min-height: 200px;
+
+.create-form-text {
+    display: flex;
+    flex-direction: column;
+    row-gap: 5px;
+    height: 100%;
+}
+.form-text-textarea {
+    height: 100%;
+    background: transparent;
+    resize: none;
+    outline: none;
     padding: 15px;
     border: var(--border);
     border-radius: 10px;
-    resize: none;
-    outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
-    background-color: transparent;
     color: var(--color-blue-dark);
 }
 
-.create-textarea:focus {
+.form-text-textarea:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(0,0,0,0.2);
 }
 
-.create-question-text {
+.create-form-section {
     display: flex;
-    flex-direction: column;
-    row-gap: 15px;
+    width: 100%;
+    column-gap: 15px;
 }
 
-.create-question-select {
-    display: flex;
-    column-gap: 30px;
+.create-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 5px;
+    border: none;
+    background-color: transparent;
+    border-radius: 15px;
 }
 
-.create-select {
-    display: flex;
-    flex-direction: column;
-    row-gap: 10px;
+@media (max-width: 1024px) {
+    /* create */
+    .create {
+        width: 65%;
+        height: 65%;
+    }
 }
 
 @media (max-width: 767px) {
     /* header */
     .header-inner {
-        display: grid;
-        grid-template-columns: 1fr 3fr;
-        column-gap: 0px;
+        flex-direction: column;
+        align-items: flex-start;
         row-gap: 10px;
     }
-    .header-link {
-        order: 1;
-        justify-self: end;
-        display: inline-flex;
+    .header-logo {
+        margin-left: 10px;
+    }
+    .header-actions {
+        width: 100%;
+        justify-content: space-between; /* кнопки слева */
     }
     /* questions */
     .questions-filter-list {
         min-width: 180px;
     }
+
+    /* create */
+    .create {
+        width: 75%;
+        height: 75%;
+    }
 }
 
 @media (max-width: 480px) {
+    /* Content */
     .questions-item-filter {
         gap: 10px;
     }
     .questions-item-header {
-        gap: 10px;
-    }
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        row-gap: 5px;
+        column-gap: 10px;
+    }  
 }

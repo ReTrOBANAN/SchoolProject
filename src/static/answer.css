@@ -1,0 +1,49 @@
+/* question */
+.question-container {
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+.question {
+    display: flex;
+    flex-direction: column;
+    border: var(--border);
+    padding: 30px;
+    border-radius: 10px;
+    row-gap: 10px;
+}
+
+
+/* answer */
+.answers {
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.answers-title {
+    text-align: center;
+}
+
+.answer-textarea {
+    display: flex;
+    flex-direction: column;
+    row-gap: 25px;
+    height: 100%;
+}
+
+.answer-btn {
+    display: inline;
+    margin-right: auto;
+}
+
+@media (max-width: 767px) {
+    .answer-textarea {
+        row-gap: 10px;
+    }
+}
+
