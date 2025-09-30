@@ -237,8 +237,9 @@ async def question_page(request: Request, note_id: int):
             # Получаем вопрос
             stmt = select(
                 init.Question.owner,
+                init.Question.owner_name,
                 init.Question.subject,
-                init.Question.title,
+                init.Question.grade,
                 init.Question.description,
                 init.Question.id,
             ).where(init.Question.id == note_id)
@@ -247,7 +248,7 @@ async def question_page(request: Request, note_id: int):
             if not data:
                 return RedirectResponse(url="/", status_code=303)
                 
-            result = [data[0].owner, data[0].subject, data[0].title, data[0].description, data[0].id]
+            result = [data[0].owner, data[0].owner_name, data[0].subject, data[0].grade, data[0].description, data[0].id]
             
         with Session(init.engine) as conn:
             # Получаем комментарии - исправленный запрос
@@ -264,7 +265,7 @@ async def question_page(request: Request, note_id: int):
                     "description": row.description
                 })
             
-        return templates.TemplateResponse("question.html", {
+        return templates.TemplateResponse("answer.html", {
             "request": request,
             "result": result,
             "comments": comments,

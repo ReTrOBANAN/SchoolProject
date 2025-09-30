@@ -17,28 +17,26 @@
             </div>
             <input type="text" id="search" class="input search-input" placeholder="Может вопрос уже задан?">
             <div class="header-actions">
-                <button id="create" class="btn header-actions-create">Создать вопрос</button>
-                <a href="/login" class="link">Вход</a>
+                <button id="create" class="btn header-actions-create" href="">Создать вопрос</button>
+                {% if username %}
+                    <a href="/profile/{{ username }}" class="link">{{ name }}</a>
+                {% else %}
+                    <a href="/login" class="link">Войти</a>
+                {% endif %}
             </div>
-            <!-- <div class="header-link">
-                <a href="/logout" class="link">Выход</a>
-            </div>
-            <div class="header-link">
-                <a href="/profile/{{ username }}" class="link">{{ name }}</a>
-            </div> -->
         </header>
     </div>
     <main>
         <section class="question-container container">
             <div class="question">
                 <div class="questions-item-header">
-                    <div>Андрей</div>
-                    <div>Математика</div>
-                    <div>5 класс</div>
+                    <div>{{ result[1] }} ({{result[0]}})</div>
+                    <div>{{ result[2] }}</div>
+                    <div>{{ result[3] }} класс</div>
                     <div>5 минут назад</div>
                 </div>
                 <div class="question-text">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente consequuntur magnam tempora vel accusamus. Debitis, quae alias eum commodi ipsam quidem quam ab, iusto incidunt eaque minus accusantium animi suscipit!
+                    {{ result[4] }}
                 </div>
             </div>
             <div class="answers">
