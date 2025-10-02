@@ -266,13 +266,35 @@ async def question_page(request: Request, note_id: int):
                     "description": row.description
                 })
             
+        result = [data[0].owner, data[0].owner_name, data[0].subject, data[0].grade, data[0].description, data[0].id]
+        
+    with Session(init.engine) as conn:
+        # Получаем комментарии - исправленный запрос
+        stmt = select(
+            init.Comment.owner,
+            init.Comment.description
+        ).where(init.Comment.question_id == note_id).order_by(init.Comment.id.desc())
+        data = conn.execute(stmt).fetchall()
+        
+        comments = []
+        for row in data:
+            comments.append({
+                "owner": row.owner,  # Теперь row имеет атрибуты owner и description
+                "description": row.description
+            })
+    if request.cookies.get("id"):
         return templates.TemplateResponse("answer.html", {
+            "username": function.decrypt(request.cookies.get("username")),
             "request": request,
             "result": result,
             "comments": comments,
         })
     else:
-        return RedirectResponse(url="/login", status_code=303)
+        return templates.TemplateResponse("answer.html", {
+            "request": request,
+            "result": result,
+            "comments": comments,
+        })
     
 @app.post("/addcomment", tags="Добавить комментарий")
 async def addcomment(
@@ -303,6 +325,60 @@ async def profile(request: Request, username: str):
         "profile.html", 
         {"request": request, "account": account}
     )
+
+from sqlalchemy import delete as sql_delete, and_
+from sqlalchemy.orm import Session
+
+@app.post("/delete", tags=["Удаление вопроса"])
+async def delete_question(
+    request: Request,
+    description: str = Form(...),
+    owner: str = Form(...),
+):
+    print(description, owner)
+    current_user = function.decrypt(request.cookies.get("username"))
+    
+    if current_user == owner:
+        with Session(init.engine) as session:
+            # Правильное использование delete
+            stmt = sql_delete(init.Question).where(
+                and_(
+                    init.Question.description == description,
+                    init.Question.owner == current_user
+                )
+            )
+            session.execute(stmt)
+            session.commit()  # Не забывайте скобки!
+        
+        return RedirectResponse("/", status_code=303)    
+    else:
+        return RedirectResponse("/", status_code=303)
+
+@app.post("/change", tags=["Изменение вопроса"])
+async def change_question(
+    request: Request,
+    description: str = Form(...),
+    new_description: str = Form(...),
+    owner: str = Form(...),
+):
+    print(f"Старое описание: {description}, Новое описание: {new_description}, Владелец: {owner}")
+    current_user = function.decrypt(request.cookies.get("username"))
+    
+    if current_user == owner:
+        with Session(init.engine) as session:
+            # Обновление вопроса
+            stmt = update(init.Question).where(
+                and_(
+                    init.Question.description == description,
+                    init.Question.owner == current_user
+                )
+            ).values(description=new_description)
+            session.execute(stmt)
+            session.commit()
+        
+        return RedirectResponse("/", status_code=303)    
+    else:
+        return RedirectResponse("/", status_code=303)
 
 if __name__ == "__main__":
     init.Base.metadata.create_all(init.engine)

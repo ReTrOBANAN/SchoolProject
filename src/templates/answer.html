@@ -61,6 +61,21 @@
                     </li>
                 </ul>
             </div>
+        <div>
+            {% if username == result[0] %}
+                <form action="/delete" method="post">
+                    <input type="hidden" name="description" value='{{ result[4] }}'>
+                    <input type="hidden" name="owner" value="{{ result[0] }}">
+                    <button type="submit" class="btn">Удалить</button>
+                </form>
+                <form action="/change" method="post">
+                    <input type="hidden" name="description" value='{{ result[4] }}'>
+                    <input type="hidden" name="owner" value="{{ result[0] }}">
+                    <textarea name="new_description" id="qwd"></textarea>
+                    <button type="submit" class="btn">Изменить</button>
+                </form>
+            {% endif %}
+        </div>
         </section>
         <div class="overlay" id="overlay">
             <section class="create">
