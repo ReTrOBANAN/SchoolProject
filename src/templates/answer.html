@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="{{ url_for('static', path='/questions.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='/answer.css') }}">
-    <script src="{{ url_for('static', path='js/questions.js') }}" defer></script>
     <script src="{{ url_for('static', path='js/answer.js') }}" defer></script>
     <title>Ответ</title>
 </head>
@@ -18,8 +17,8 @@
             </div>
             <input type="text" id="search" class="input search-input" placeholder="Может вопрос уже задан?">
             <div class="header-actions">
-                <button id="create" class="btn header-actions-create" href="">Создать вопрос</button>
                 {% if username %}
+                    <button id="create" class="btn header-actions-create">Создать вопрос</button>
                     <a href="/profile/{{ username }}" class="link">{{ name }}</a>
                 {% else %}
                     <a href="/login" class="link">Войти</a>
@@ -35,6 +34,13 @@
                     <div>{{ result[2] }}</div>
                     <div>{{ result[3] }} класс</div>
                     <div id="questionTime" data-question-time="{{ result[6] }}">{{ result[6] }}</div>
+                    {% if username == result[0] %}
+                    <form action="/delete" method="post">
+                        <input type="hidden" name="description" value='{{ result[4] }}'>
+                        <input type="hidden" name="owner" value="{{ result[0] }}">
+                        <button type="submit" class="link">Удалить</button>
+                    </form>
+                    {% endif %}
                 </div>
                 <div class="question-text">
                     {{ result[4] }}
@@ -42,23 +48,15 @@
             </div>
             <div class="answers">
                 <h1 class="answers-title">Ответы</h1>
-                <ul class="questions-content-list">
-                    <li class="questions-content-item">
-                        <div class="answer-textarea">
-                            <label for="questionText">Хотите ответить?</label>
-                            <textarea class="form-text-textarea" name="questionText" id="questionText"></textarea>
-                            <button type="button" class="answer-btn btn">Ответить</button>
-                        </div>
-                    </li>
-                    <li class="questions-content-item">
-                        <div class="questions-item-header">
-                            <div>Андрей</div>
-                            <div>5 минут назад</div>
-                        </div>
-                        <div class="question-text">
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente consequuntur magnam tempora vel accusamus. Debitis, quae alias eum commodi ipsam quidem quam ab, iusto incidunt eaque minus accusantium animi suscipit!
-                        </div>
-                    </li>
+                <div class="questions-content-item">
+                    <form action="/addcomment" method="post" class="answer-textarea">
+                        <label for="questionText">Хотите ответить?</label>
+                        <input type="hidden" value="{{ result[5] }}" name="id">
+                        <textarea class="form-text-textarea" name="comment" id="questionText"></textarea>
+                        <button type="submit" class="answer-btn btn">Ответить</button>
+                    </form>
+                </div>
+                <ul id="answerList" class="questions-content-list" data-questionid="{{ result[5] }}">
                 </ul>
             </div>
         <div>
@@ -82,20 +80,20 @@
                 <button class="create-close-btn" id="close">
                     <img src="{{ url_for('static', path='imgs/close.svg') }}" alt="">
                 </button>
-                <form action="" method="post" class="create-form">
+                <form action="/doadd" method="post" class="create-form">
                     <div class="create-form-text">
                         <label for="questionText">Какой у вас вопрос?</label>
-                        <textarea class="form-text-textarea" name="questionText" id="questionText"></textarea>
+                        <textarea class="form-text-textarea" name="description" id="questionText" minlength="3" required></textarea>
                     </div>
                     <div class="create-form-section">
-                        <select class="item-filter-subject input" id="subject-create">
-                            <option value="math" selected>Математика</option>
-                            <option value="russian">Русский язык</option>
-                            <option value="english">Английский язык</option>
-                            <option value="biology">Биология</option>
-                            <option value="physics">Физика</option>
+                        <select class="item-filter-subject input" id="subject-create" name="subject">
+                            <option value="Математика" selected>Математика</option>
+                            <option value="Русский язык">Русский язык</option>
+                            <option value="Английский язык">Английский язык</option>
+                            <option value="Биология">Биология</option>
+                            <option value="Физика">Физика</option>
                         </select>
-                        <select class="item-filter-grade input" id="grade-create">
+                        <select class="item-filter-grade input" id="grade-create" name="grade">
                             <option value="1" selected>1 класс</option>
                             <option value="2">2 класс</option>
                             <option value="3">3 класс</option>
