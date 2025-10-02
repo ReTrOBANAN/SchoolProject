@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', path='/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='/answer.css') }}">
     <script src="{{ url_for('static', path='js/questions.js') }}" defer></script>
+    <script src="{{ url_for('static', path='js/answer.js') }}" defer></script>
     <title>Ответ</title>
 </head>
 <body>
@@ -33,7 +34,7 @@
                     <div>{{ result[1] }} ({{result[0]}})</div>
                     <div>{{ result[2] }}</div>
                     <div>{{ result[3] }} класс</div>
-                    <div>5 минут назад</div>
+                    <div id="questionTime" data-question-time="{{ result[6] }}">{{ result[6] }}</div>
                 </div>
                 <div class="question-text">
                     {{ result[4] }}
