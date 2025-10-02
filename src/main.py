@@ -266,6 +266,7 @@ async def question_page(request: Request, note_id: int):
                 })
             
         return templates.TemplateResponse("answer.html", {
+            "username": function.decrypt(request.cookies.get("username")),
             "request": request,
             "result": result,
             "comments": comments,
@@ -302,6 +303,60 @@ async def profile(request: Request, username: str):
         "profile.html", 
         {"request": request, "account": account}
     )
+
+from sqlalchemy import delete as sql_delete, and_
+from sqlalchemy.orm import Session
+
+@app.post("/delete", tags=["Удаление вопроса"])
+async def delete_question(
+    request: Request,
+    description: str = Form(...),
+    owner: str = Form(...),
+):
+    print(description, owner)
+    current_user = function.decrypt(request.cookies.get("username"))
+    
+    if current_user == owner:
+        with Session(init.engine) as session:
+            # Правильное использование delete
+            stmt = sql_delete(init.Question).where(
+                and_(
+                    init.Question.description == description,
+                    init.Question.owner == current_user
+                )
+            )
+            session.execute(stmt)
+            session.commit()  # Не забывайте скобки!
+        
+        return RedirectResponse("/", status_code=303)    
+    else:
+        return RedirectResponse("/", status_code=303)
+
+@app.post("/change", tags=["Изменение вопроса"])
+async def change_question(
+    request: Request,
+    description: str = Form(...),
+    new_description: str = Form(...),
+    owner: str = Form(...),
+):
+    print(f"Старое описание: {description}, Новое описание: {new_description}, Владелец: {owner}")
+    current_user = function.decrypt(request.cookies.get("username"))
+    
+    if current_user == owner:
+        with Session(init.engine) as session:
+            # Обновление вопроса
+            stmt = update(init.Question).where(
+                and_(
+                    init.Question.description == description,
+                    init.Question.owner == current_user
+                )
+            ).values(description=new_description)
+            session.execute(stmt)
+            session.commit()
+        
+        return RedirectResponse("/", status_code=303)    
+    else:
+        return RedirectResponse("/", status_code=303)
 
 if __name__ == "__main__":
     init.Base.metadata.create_all(init.engine)
