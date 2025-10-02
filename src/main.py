@@ -174,6 +174,30 @@ async def get_questions():
                 "created_at": row.created_at.isoformat() if row.created_at else None,
             })
         return JSONResponse(content=questions)
+    
+@app.get("/api/answers", tags=["API"])
+async def get_answers():
+    with Session(init.engine) as conn:
+        stmt = select(
+            init.Comment.id,
+            init.Comment.question_id,
+            init.Comment.owner,
+            init.Comment.description,
+        ).order_by(init.Comment.id.desc())
+        data = conn.execute(stmt).fetchall()
+
+        questions = []
+        for row in data:
+            stmt = select(init.User.name).where(init.User.username == row.owner)
+            data = conn.execute(stmt).fetchall()
+            questions.append({
+                "id": row.id,
+                "question_id": row.question_id,
+                "name": data[0].name,
+                "username": row.owner,
+                "text": row.description,
+            })
+        return JSONResponse(content=questions)
 
 @app.get("/", tags="Главная")
 async def main(request: Request):
@@ -230,6 +254,7 @@ async def question_page(request: Request, note_id: int):
         
         return templates.TemplateResponse("answer.html", {
             "username": function.decrypt(request.cookies.get("username")),
+            "name": function.decrypt(request.cookies.get("name")),
             "request": request,
             "result": result,
             "comments": comments,
@@ -287,6 +312,7 @@ async def addcomment(
     comment: str = Form(...),
     id: int = Form(...),
 ):
+    print(comment, id)
     with Session(init.engine) as conn:
         comments = init.Comment(
             question_id=id,
