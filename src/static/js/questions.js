@@ -33,7 +33,7 @@ function applyFilters() {
     }
     if (grade !== 'все классы') {
         filtered = filtered.filter((question) => {
-            let num = Number(question.grade.split(' ')[0])
+            let num = Number(question.grade)
             let min = Number(grade.split(' ')[0])
             let max = Number(grade.split(' ')[2])
 
@@ -50,7 +50,6 @@ gradeSelect.addEventListener('change', applyFilters)
 
 
 function render(questions = []) {
-    console.log(questions)
     if (questions.length === 0) {
         questionsList.innerHTML = `<p style="text-align: center;">Вопросов нет</p>`
     }
@@ -106,9 +105,12 @@ function timeAgo(dateString) {
 const createBtn = document.getElementById('create')
 const overlayContainer = document.getElementById('overlay')
 const closeBtn = document.getElementById('close')
-createBtn.addEventListener('click', () => {
-    overlayContainer.classList.add('active')
-})
+if (createBtn) {
+    createBtn.addEventListener('click', () => {
+        overlayContainer.classList.add('active')
+    })
+}
+
 closeBtn.addEventListener('click', () => {
     overlayContainer.classList.remove('active')
 })

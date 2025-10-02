@@ -16,8 +16,8 @@
             </div>
             <input type="text" id="search" class="input search-input" placeholder="Может вопрос уже задан?">
             <div class="header-actions">
-                <button id="create" class="btn header-actions-create" href="">Создать вопрос</button>
                 {% if username %}
+                    <button id="create" class="btn header-actions-create">Создать вопрос</button>
                     <a href="/profile/{{ username }}" class="link">{{ name }}</a>
                 {% else %}
                     <a href="/login" class="link">Войти</a>
@@ -57,7 +57,7 @@
                 <form action="/doadd" method="post" class="create-form">
                     <div class="create-form-text">
                         <label for="questionText">Какой у вас вопрос?</label>
-                        <textarea class="form-text-textarea" name="description" id="questionText"></textarea>
+                        <textarea class="form-text-textarea" name="description" id="questionText" minlength="3" required></textarea>
                     </div>
                     <div class="create-form-section">
                         <select class="item-filter-subject input" id="subject-create" name="subject">
