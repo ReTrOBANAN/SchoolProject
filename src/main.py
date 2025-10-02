@@ -279,6 +279,7 @@ async def question_page(request: Request, note_id: int):
             "result": result,
             "comments": comments,
         })
+
     
 @app.post("/addcomment", tags="Добавить комментарий")
 async def addcomment(
