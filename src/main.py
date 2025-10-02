@@ -131,60 +131,16 @@ async def doadd(
 ):
     try:
         with Session(init.engine) as conn:
-            # Проверка существующего вопроса
-            stmt = select(init.Question).where(
-                init.Question.description == description
+            question = init.Question(
+                owner=function.decrypt(request.cookies.get("username")),
+                owner_name=function.decrypt(request.cookies.get("name")),
+                subject=subject,
+                grade=grade,
+                description=description,
             )
-            data = conn.execute(stmt).first()
+            conn.add(question)
+            conn.commit()  # Важно: commit после добавления
             
-            if data:
-                print("Такой вопрос уже есть!")
-                # Возможно, стоит вернуть сообщение об ошибке вместо редиректа
-                return RedirectResponse(url="/?error=question_exists", status_code=303)
-            else:
-                # Добавление нового вопроса
-                question = init.Question(
-                    owner=function.decrypt(request.cookies.get("username")),
-                    owner_name=function.decrypt(request.cookies.get("name")),
-                    subject=subject,
-                    grade=grade,
-                    description=description,
-                )
-                conn.add(question)
-                conn.commit()  # Важно: commit после добавления
-            
-            # # Обновление баллов пользователя
-            # user_id = request.cookies.get("id")
-            # if not user_id:
-            #     return RedirectResponse(url="/login", status_code=303)
-                
-            # select_stmt = select(init.User).where(init.User.id == user_id)
-            # user_data = conn.execute(select_stmt).first()
-            
-            # if not user_data:
-            #     return RedirectResponse(url="/login", status_code=303)
-                
-            # user = user_data[0] if isinstance(user_data, tuple) else user_data
-            # min_points = int(user.min_points) + 1
-            
-            # # Обновление уровня пользователя
-            # # Предполагается, что levels - это список словарей с ключами 'title', 'min_points', 'background'
-            # for level in levels:
-            #     if (level.get('title') != user.title and 
-            #         level.get('min_points') <= min_points):
-                    
-            #         update_stmt = (
-            #             update(init.User)
-            #             .where(init.User.id == user_id)
-            #             .values(
-            #                 title=level.get('title'),
-            #                 background=level.get('background'),
-            #                 min_points=min_points
-            #             )
-            #         )
-            #         conn.execute(update_stmt)
-            #         conn.commit()
-            #         break  # Прерываем цикл после первого подходящего уровня
             
         return RedirectResponse(url="/", status_code=303)
         
