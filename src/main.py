@@ -140,13 +140,39 @@ async def doadd(
             )
             conn.add(question)
             conn.commit()  # Важно: commit после добавления
-            
-            
+            function.upgrade(request.cookies.get("id"))
+            function.upgrade_title(request.cookies.get("id"))
         return RedirectResponse(url="/", status_code=303)
         
     except Exception as e:
         print(f"Ошибка при добавлении вопроса: {e}")
         return RedirectResponse(url="/?error=server_error", status_code=303)
+
+@app.get("/api/answers", tags=["API"])
+async def get_answers():
+    with Session(init.engine) as conn:
+        stmt = select(
+            init.Comment.id,
+            init.Comment.question_id,
+            init.Comment.owner,
+            init.Comment.description,
+            init.Comment.created_at,
+        ).order_by(init.Comment.id.desc())
+        data = conn.execute(stmt).fetchall()
+
+        questions = []
+        for row in data:
+            stmt = select(init.User.name).where(init.User.username == row.owner)
+            data = conn.execute(stmt).fetchall()
+            questions.append({
+                "id": row.id,
+                "question_id": row.question_id,
+                "name": data[0].name,
+                "username": row.owner,
+                "text": row.description,
+                "time": row.created_at
+            })
+        return JSONResponse(content=questions)
 
 @app.get("/api/questions", tags=["API"])
 async def get_questions():
@@ -172,6 +198,23 @@ async def get_questions():
                 "grade": row.grade,
                 "text": row.description,
                 "created_at": row.created_at.isoformat() if row.created_at else None,
+            })
+        return JSONResponse(content=questions)
+    
+@app.get("/api/users", tags=["API"])
+async def get_questions():
+    with Session(init.engine) as conn:
+        stmt = select(
+            init.User.min_points,
+            init.User.username,
+        )
+        data = conn.execute(stmt).fetchall()
+
+        questions = []
+        for row in data:
+            questions.append({
+                "min_points": row.min_points,
+                "username": row.username,
             })
         return JSONResponse(content=questions)
 
