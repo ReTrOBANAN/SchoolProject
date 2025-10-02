@@ -232,39 +232,38 @@ async def main(request: Request):
  
 @app.get("/question/{note_id}", tags="Страница вопроса")
 async def question_page(request: Request, note_id: int):
+    with Session(init.engine) as conn:
+        # Получаем вопрос
+        stmt = select(
+            init.Question.owner,
+            init.Question.owner_name,
+            init.Question.subject,
+            init.Question.grade,
+            init.Question.description,
+            init.Question.id,
+        ).where(init.Question.id == note_id)
+        data = conn.execute(stmt).fetchall()
+        
+        if not data:
+            return RedirectResponse(url="/", status_code=303)
+            
+        result = [data[0].owner, data[0].owner_name, data[0].subject, data[0].grade, data[0].description, data[0].id]
+        
+    with Session(init.engine) as conn:
+        # Получаем комментарии - исправленный запрос
+        stmt = select(
+            init.Comment.owner,
+            init.Comment.description
+        ).where(init.Comment.question_id == note_id).order_by(init.Comment.id.desc())
+        data = conn.execute(stmt).fetchall()
+        
+        comments = []
+        for row in data:
+            comments.append({
+                "owner": row.owner,  # Теперь row имеет атрибуты owner и description
+                "description": row.description
+            })
     if request.cookies.get("id"):
-        with Session(init.engine) as conn:
-            # Получаем вопрос
-            stmt = select(
-                init.Question.owner,
-                init.Question.owner_name,
-                init.Question.subject,
-                init.Question.grade,
-                init.Question.description,
-                init.Question.id,
-            ).where(init.Question.id == note_id)
-            data = conn.execute(stmt).fetchall()
-            
-            if not data:
-                return RedirectResponse(url="/", status_code=303)
-                
-            result = [data[0].owner, data[0].owner_name, data[0].subject, data[0].grade, data[0].description, data[0].id]
-            
-        with Session(init.engine) as conn:
-            # Получаем комментарии - исправленный запрос
-            stmt = select(
-                init.Comment.owner,
-                init.Comment.description
-            ).where(init.Comment.question_id == note_id).order_by(init.Comment.id.desc())
-            data = conn.execute(stmt).fetchall()
-            
-            comments = []
-            for row in data:
-                comments.append({
-                    "owner": row.owner,  # Теперь row имеет атрибуты owner и description
-                    "description": row.description
-                })
-            
         return templates.TemplateResponse("answer.html", {
             "username": function.decrypt(request.cookies.get("username")),
             "request": request,
@@ -272,7 +271,11 @@ async def question_page(request: Request, note_id: int):
             "comments": comments,
         })
     else:
-        return RedirectResponse(url="/login", status_code=303)
+        return templates.TemplateResponse("answer.html", {
+            "request": request,
+            "result": result,
+            "comments": comments,
+        })
     
 @app.post("/addcomment", tags="Добавить комментарий")
 async def addcomment(
