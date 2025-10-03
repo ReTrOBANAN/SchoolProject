@@ -62,7 +62,7 @@ function toHTML(answer) {
     return `<li class="questions-content-item">
         <div class="questions-item-header">
             <div>${answer.name}</div>
-            <div>5 минут назад</div>
+            <div>${timeAgo(answer.created_at)}</div>
         </div>
         <div class="question-text">
             ${answer.text}
@@ -78,7 +78,6 @@ const overlayContainer = document.getElementById('overlay')
 const closeBtn = document.getElementById('close')
 if (createBtn) {
     createBtn.addEventListener('click', () => {
-        console.log('asd')
         overlayContainer.classList.add('active')
     })
 }
@@ -87,3 +86,54 @@ if (createBtn) {
 closeBtn.addEventListener('click', () => {
     overlayContainer.classList.remove('active')
 })
+
+
+
+const editBtn = document.getElementById('editBtn')
+const editContainer = document.getElementById('editContainer')
+if (editBtn && editContainer) {
+    editBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        if (editContainer.classList.value.includes('active')) {
+            editContainer.classList.remove('active')
+        }
+        else {
+            editContainer.classList.add('active')
+        }
+    })
+
+    document.addEventListener('click', () => {
+        editContainer.classList.remove('active')
+    })
+}
+
+
+
+const editContainerDeleteBtn = document.getElementById('editContainerDeleteBtn')
+const overlaySuredelete = document.getElementById('overlay-suredelete')
+const sureCancelBtn = document.getElementById('sureCancelBtn')
+const sureCloseBtn = document.getElementById('sureCloseBtn')
+if (editContainerDeleteBtn && overlaySuredelete) {
+    editContainerDeleteBtn.addEventListener('click', () => {
+        overlaySuredelete.classList.add('active')
+    })
+    sureCancelBtn.addEventListener('click', () => {
+        overlaySuredelete.classList.remove('active')
+    })
+    sureCloseBtn.addEventListener('click', () => {
+        overlaySuredelete.classList.remove('active')
+    })
+}
+
+
+const changeBtn = document.getElementById('changeBtn')
+const overlayChangeContainer = document.getElementById('overlayChangeContainer')
+const closeChangeContainerBtn = document.getElementById('closeChangeContainerBtn')
+if (changeBtn && overlayChangeContainer) {
+    changeBtn.addEventListener('click', () => {
+        overlayChangeContainer.classList.add('active')
+    })
+    closeChangeContainerBtn.addEventListener('click', () => {
+        overlayChangeContainer.classList.remove('active')
+    })
+}

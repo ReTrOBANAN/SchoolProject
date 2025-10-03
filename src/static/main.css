@@ -246,6 +246,7 @@ svg * {
     --color-green-dark: #C2D8B9;
     --color-green-light: #E4F0D0;
     --color-red: #ff6970;
+    --color-dark-red: #f74f57;
 
     --border: 1px solid var(--color-blue-dark);
 
