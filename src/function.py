@@ -32,14 +32,23 @@ def upgrade_title(id):
     with Session(init.engine) as session:
         stmt = select(init.User).where(init.User.id == id)
         user = session.execute(stmt).scalar_one()
-        for i in levels:
-            if i["min_points"] >= user[0].min_points and user[0].title != i["title"]:
+        
+        new_title = None
+        new_background = None
+
+        for i in reversed(levels):
+            if user.min_points >= i["min_points"] and user.title != i["title"]:
                 new_title = i["title"]
                 new_background = i["background"]
                 break
+        
         if new_title:
-            stmt = update(init.User).where(init.User.id == id).values(title=new_title, background=new_background)
+            stmt = update(init.User).where(init.User.id == id).values(
+                title=new_title, 
+                background=new_background
+            )
             session.execute(stmt)
+            session.commit() 
 
 # кодирование пароля
 def encrypt(text):

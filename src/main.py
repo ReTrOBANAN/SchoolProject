@@ -170,7 +170,7 @@ async def get_answers():
                 "name": data[0].name,
                 "username": row.owner,
                 "text": row.description,
-                "time": row.created_at,
+                "created_at": row.created_at.isoformat() if row.created_at else None,
             })
         return JSONResponse(content=questions)
 
@@ -207,19 +207,18 @@ async def get_questions():
         stmt = select(
             init.User.min_points,
             init.User.username,
+            init.User.background,
+            init.User.title,
         )
         data = conn.execute(stmt).fetchall()
 
         questions = []
         for row in data:
-            stmt = select(init.User.name).where(init.User.username == row.owner)
-            data = conn.execute(stmt).fetchall()
             questions.append({
-                "id": row.id,
-                "question_id": row.question_id,
-                "name": data[0].name,
-                "username": row.owner,
-                "text": row.description,
+                "min_points": row.min_points,
+                "username": row.username,
+                "background": data[0].background,
+                "title": row.title,
             })
         return JSONResponse(content=questions)
 
@@ -345,6 +344,8 @@ async def addcomment(
         )
         conn.add(comments)
         conn.commit()
+        function.upgrade(request.cookies.get("id"))
+        function.upgrade_title(request.cookies.get("id"))
         return RedirectResponse(url=f'/question/{id}', status_code=303)
     
 @app.get("/profile/{username}", tags=["Профиль"])
@@ -353,9 +354,11 @@ async def profile(request: Request, username: str):
             stmt = select(
                 init.User.id,
                 init.User.name,
+                init.User.title,
+                init.User.background,
             ).where(init.User.username == username)
             data = conn.execute(stmt).fetchall()
-            account = [data[0].id, data[0].name, username]
+            account = [data[0].id, data[0].name, username, data[0].title, data[0].background]
     return templates.TemplateResponse(
         "profile.html", 
         {"request": request, "account": account}
