@@ -170,7 +170,7 @@ async def get_answers():
                 "name": data[0].name,
                 "username": row.owner,
                 "text": row.description,
-                "time": row.created_at
+                "created_at": row.created_at.isoformat() if row.created_at else None,
             })
         return JSONResponse(content=questions)
 

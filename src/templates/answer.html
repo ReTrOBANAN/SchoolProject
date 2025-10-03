@@ -28,19 +28,31 @@
     </div>
     <main>
         <section class="question-container container">
+            <a href="/">
+                <img src="{{ url_for('static', path='imgs/arrow.svg') }}" alt="">
+            </a>
             <div class="question">
+                {% if username == result[0] %}
+                <button class="edit-btn" id="editBtn">
+                    <img src="{{ url_for('static', path='imgs/more.svg') }}" alt="">
+                </button>
+                <div class="question-edit-container" id="editContainer">
+                    <button type="button" class="delete-btn" id="editContainerDeleteBtn">
+                        <img src="{{ url_for('static', path='imgs/delete.svg') }}" alt="">
+                        Удалить
+                    </button>
+                    <button type="submit" class="delete-btn" id="changeBtn">
+                        <img src="{{ url_for('static', path='imgs/edit.svg') }}" alt="">
+                        Изменить
+                    </button>
+                </div>
+                {% endif %}
+
                 <div class="questions-item-header">
                     <div>{{ result[1] }} ({{result[0]}})</div>
                     <div>{{ result[2] }}</div>
                     <div>{{ result[3] }} класс</div>
-                    <div id="questionTime" data-question-time="{{ result[6] }}">{{ result[6] }}</div>
-                    {% if username == result[0] %}
-                    <form action="/delete" method="post">
-                        <input type="hidden" name="description" value='{{ result[4] }}'>
-                        <input type="hidden" name="owner" value="{{ result[0] }}">
-                        <button type="submit" class="link">Удалить</button>
-                    </form>
-                    {% endif %}
+                    <div id="questionTime" data-question-time="{{ result[6] }}"></div>
                 </div>
                 <div class="question-text">
                     {{ result[4] }}
@@ -48,14 +60,20 @@
             </div>
             <div class="answers">
                 <h1 class="answers-title">Ответы</h1>
+                {% if username %}
                 <div class="questions-content-item">
                     <form action="/addcomment" method="post" class="answer-textarea">
                         <label for="questionText">Хотите ответить?</label>
                         <input type="hidden" value="{{ result[5] }}" name="id">
                         <textarea class="form-text-textarea" name="comment" id="questionText"></textarea>
                         <button type="submit" class="answer-btn btn">Ответить</button>
-                    </form>
+                    </form>                  
                 </div>
+                {% else %}
+                <div class="question answer-login">
+                    <p>Хотите ответить? <a href="/login" class="link">Войти</a></p>
+                </div>
+                {% endif %}
                 <ul id="answerList" class="questions-content-list" data-questionid="{{ result[5] }}">
                 </ul>
             </div>
@@ -108,6 +126,66 @@
                         </select>
                     </div>
                     <button type="submit" class="btn">Создать вопрос</button>
+                </form>
+            </section>
+        </div>
+        <div class="overlay" id="overlay-suredelete">
+            <section class="sure-delete">
+                <button class="create-close-btn" id="sureCloseBtn">
+                    <img src="{{ url_for('static', path='imgs/close.svg') }}" alt="">
+                </button>
+                <h2 class="sure-delete-title">Вы уверены что хотите удалить вопрос?</h2>
+                <div class="sure-delete-btns">
+                    <form action="/delete" method="post">
+                        <input type="hidden" name="description" value='{{ result[4] }}'>
+                        <input type="hidden" name="owner" value="{{ result[0] }}">
+                        <button type="submit" class="btn delete-sure">
+                            Удалить
+                        </button>
+                    </form>
+                    <button type="submit" class="btn" id="sureCancelBtn">
+                        Отменить
+                    </button>
+                </div>
+            </section>
+        </div>
+        <div class="overlay" id="overlayChangeContainer">
+            <section class="create">
+                <button class="create-close-btn" id="closeChangeContainerBtn">
+                    <img src="{{ url_for('static', path='imgs/close.svg') }}" alt="">
+                </button>
+                <form action="/change" method="post" class="create-form">
+                    <div class="create-form-text">
+                        <label for="questionText">Что изменить?</label>
+                        <input type="hidden" name="description" value='{{ result[4] }}'>
+                        <input type="hidden" name="owner" value="{{ result[0] }}">
+                        <textarea class="form-text-textarea" name="new_description" id="questionText" minlength="3" required></textarea>
+                    </div>
+                    <div class="create-form-section">
+                        <select class="item-filter-subject input" id="subject-create" name="subject">
+                            <option value="Математика" selected>Математика</option>
+                            <option value="Русский язык">Русский язык</option>
+                            <option value="Английский язык">Английский язык</option>
+                            <option value="Биология">Биология</option>
+                            <option value="Физика">Физика</option>
+                        </select>
+                        <select class="item-filter-grade input" id="grade-create" name="grade">
+                            <option value="1" selected>1 класс</option>
+                            <option value="2">2 класс</option>
+                            <option value="3">3 класс</option>
+                            <option value="4">4 класс</option>
+                            <option value="5">5 класс</option>
+                            <option value="6">6 класс</option>
+                            <option value="7">7 класс</option>
+                            <option value="8">8 класс</option>
+                            <option value="9">9 класс</option>
+                            <option value="10">10 класс</option>
+                            <option value="11">11 класс</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">
+                        Изменить
+                    </button>
                 </form>
             </section>
         </div>

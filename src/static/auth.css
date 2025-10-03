@@ -8,6 +8,13 @@ body {
 .auth-container {
   width: 100%;
   max-width: 400px;
+  position: relative;
+}
+
+.arrow-back {
+  position: absolute;
+  top: 10px;
+  left: 10px;
 }
 
 .auth {
@@ -49,6 +56,6 @@ body {
 
 @media (max-width: 480px) {
   .auth {
-    padding: 30px 20px;
+    padding: 50px 20px;
   }
 }
