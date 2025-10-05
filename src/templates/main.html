@@ -18,7 +18,7 @@
             <div class="header-actions">
                 {% if username %}
                     <button id="create" class="btn header-actions-create">Создать вопрос</button>
-                    <a href="/profile/{{ username }}" class="link">{{ name }}</a>
+                    <a href="/profile/{{ username }}" class="link">Профиль</a>
                 {% else %}
                     <a href="/login" class="link">Войти</a>
                 {% endif %}
@@ -45,7 +45,7 @@
                 </select>
             </div>
             <div>
-                <ul id="questions-list" class="questions-content-list">
+                <ul id="questionsList" class="questions-content-list">
                 </ul>
             </div>
         </section>
@@ -60,14 +60,14 @@
                         <textarea class="form-text-textarea" name="description" id="questionText" minlength="3" required></textarea>
                     </div>
                     <div class="create-form-section">
-                        <select class="item-filter-subject input" id="subject-create" name="subject">
+                        <select class="item-filter-subject input" name="subject">
                             <option value="Математика" selected>Математика</option>
                             <option value="Русский язык">Русский язык</option>
                             <option value="Английский язык">Английский язык</option>
                             <option value="Биология">Биология</option>
                             <option value="Физика">Физика</option>
                         </select>
-                        <select class="item-filter-grade input" id="grade-create" name="grade">
+                        <select class="item-filter-grade input" name="grade">
                             <option value="1" selected>1 класс</option>
                             <option value="2">2 класс</option>
                             <option value="3">3 класс</option>

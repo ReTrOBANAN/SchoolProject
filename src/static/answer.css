@@ -43,7 +43,7 @@
     right: 0;
     top: 100px;
     transform: translate(0%, -50%);
-    background-color: #edeae4;
+    background-color: var(--color-windows);
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
@@ -98,6 +98,7 @@
     text-align: center;
     margin-bottom: 20px;
     flex-wrap: wrap;
+    font-weight: 700;
 }
 .sure-delete-btns {
     display: flex;

@@ -1,4 +1,4 @@
-const questionsList = document.querySelector('#questions-list')
+const questionsList = document.querySelector('#questionsList')
 const seacrhInput = document.querySelector('#search')
 const subjectSelect = document.getElementById('subject')
 const gradeSelect = document.getElementById('grade')

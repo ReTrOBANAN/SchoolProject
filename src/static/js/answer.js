@@ -109,12 +109,12 @@ if (editBtn && editContainer) {
 
 
 
-const editContainerDeleteBtn = document.getElementById('editContainerDeleteBtn')
-const overlaySuredelete = document.getElementById('overlay-suredelete')
+const deleteBtn = document.getElementById('deleteBtn')
+const overlaySuredelete = document.getElementById('overlaySureDelete')
 const sureCancelBtn = document.getElementById('sureCancelBtn')
 const sureCloseBtn = document.getElementById('sureCloseBtn')
-if (editContainerDeleteBtn && overlaySuredelete) {
-    editContainerDeleteBtn.addEventListener('click', () => {
+if (deleteBtn && overlaySuredelete) {
+    deleteBtn.addEventListener('click', () => {
         overlaySuredelete.classList.add('active')
     })
     sureCancelBtn.addEventListener('click', () => {
