@@ -59,16 +59,52 @@ function render(answers = []) {
 }
 
 function toHTML(answer) {
-    return `<li class="questions-content-item">
-        <div class="questions-item-header">
-            <div>${answer.name}</div>
-            <div>${timeAgo(answer.created_at)}</div>
-        </div>
-        <div class="question-text">
-            ${answer.text}
-        </div>
-    </li>
-    `
+    const username = answersList.dataset.username
+    console.log("Зашел: ", username, "НАписал ответ", answer.username)
+    if (username === answer.username) {
+        return `<li class="questions-content-item">
+            <button class="edit-btn" id="editBtn">
+                <img src="/static/imgs/more.svg" alt="">
+            </button>
+            <div class="question-edit-container" id="editContainer">
+                <button type="submit" class="delete-btn" id="reportBtn">
+                    <img src="/static/imgs/flag.svg" alt="">
+                    Пожаловаться
+                </button>
+            </div>
+
+            <div class="questions-item-header">
+                <div>${answer.name}</div>
+                <div>${timeAgo(answer.created_at)}</div>
+            </div>
+            <div class="question-text">
+                ${answer.text}
+            </div>
+        </li>
+        `
+    }
+    else {
+        return `<li class="questions-content-item">
+            <button class="edit-btn" id="editBtn">
+                <img src="/static/imgs/more.svg" alt="">
+            </button>
+            <div class="question-edit-container" id="editContainer">
+                <button type="submit" class="delete-btn" id="reportBtn">
+                    <img src="/static/imgs/flag.svg" alt="">
+                    Пожаловаться
+                </button>
+            </div>
+            <div class="questions-item-header">
+                <div>${answer.name}</div>
+                <div>${timeAgo(answer.created_at)}</div>
+            </div>
+            <div class="question-text">
+                ${answer.text}
+            </div>
+        </li>`
+    }
+
+    
 }
 
 start()
@@ -88,7 +124,6 @@ closeBtn.addEventListener('click', () => {
 })
 
 
-
 const editBtn = document.getElementById('editBtn')
 const editContainer = document.getElementById('editContainer')
 if (editBtn && editContainer) {
@@ -106,6 +141,30 @@ if (editBtn && editContainer) {
         editContainer.classList.remove('active')
     })
 }
+
+answersList.addEventListener('click', (e) => {
+    const btn = e.target.closest('.edit-btn');
+    if (!btn) return
+    const container = btn.closest('.questions-content-item').querySelector('.question-edit-container')
+    if (!container) return
+
+    e.stopPropagation()
+    if (container.classList.value.includes('active')) {
+        container.classList.remove('active')
+    }
+    else {
+        container.classList.add('active')
+    }
+});
+document.addEventListener('click', (e) => {
+    const activeContainers = document.querySelectorAll('.question-edit-container.active');
+
+    activeContainers.forEach(container => {
+        if (!container.contains(e.target)) {
+            container.classList.remove('active');
+        }
+    });
+});
 
 
 
@@ -135,5 +194,17 @@ if (changeBtn && overlayChangeContainer) {
     })
     closeChangeContainerBtn.addEventListener('click', () => {
         overlayChangeContainer.classList.remove('active')
+    })
+}
+
+const reportBtn = document.getElementById('reportBtn')
+const overlayReportContainer = document.getElementById('overlayReportContainer')
+const closeReportContainerBtn = document.getElementById('closeReportContainerBtn')
+if (reportBtn && overlayChangeContainer) {
+    reportBtn.addEventListener('click', () => {
+        overlayReportContainer.classList.add('active')
+    })
+    closeReportContainerBtn.addEventListener('click', () => {
+        overlayReportContainer.classList.remove('active')
     })
 }

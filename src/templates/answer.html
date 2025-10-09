@@ -19,7 +19,7 @@
             <div class="header-actions">
                 {% if username %}
                     <button id="create" class="btn header-actions-create">Создать вопрос</button>
-                    <a href="/profile/{{ username }}" class="link">Профиль</a>
+                    <a href="/profile/{{ username }}" class="link">{{ name }}</a>
                 {% else %}
                     <a href="/login" class="link">Войти</a>
                 {% endif %}
@@ -32,11 +32,11 @@
                 <img src="{{ url_for('static', path='imgs/arrow.svg') }}" alt="">
             </a>
             <div class="question">
-                {% if username == result[0] %}
                 <button class="edit-btn" id="editBtn">
                     <img src="{{ url_for('static', path='imgs/more.svg') }}" alt="">
                 </button>
                 <div class="question-edit-container" id="editContainer">
+                    {% if username == result[0] %}
                     <button type="button" class="delete-btn" id="deleteBtn">
                         <img src="{{ url_for('static', path='imgs/delete.svg') }}" alt="">
                         Удалить
@@ -45,9 +45,13 @@
                         <img src="{{ url_for('static', path='imgs/edit.svg') }}" alt="">
                         Изменить
                     </button>
+                    {% else %}
+                    <button type="submit" class="delete-btn" id="reportBtn">
+                        <img src="{{ url_for('static', path='imgs/flag.svg') }}" alt="">
+                        Пожаловаться
+                    </button>
+                    {% endif %}
                 </div>
-                {% endif %}
-
                 <div class="questions-item-header">
                     <div>{{ result[1] }} ({{result[0]}})</div>
                     <div>{{ result[2] }}</div>
@@ -74,7 +78,7 @@
                     <p>Хотите ответить? <a href="/login" class="link">Войти</a></p>
                 </div>
                 {% endif %}
-                <ul id="answerList" class="questions-content-list" data-questionid="{{ result[5] }}">
+                <ul id="answerList" class="questions-content-list" data-questionid="{{ result[5] }}" data-username="{{ username }}">
                 </ul>
             </div>
         <div>
@@ -185,6 +189,44 @@
                     </div>
                     <button type="submit" class="btn">
                         Изменить
+                    </button>
+                </form>
+            </section>
+        </div>
+        <div class="overlay" id="overlayReportContainer">
+            <section class="report">
+                <button class="create-close-btn" id="closeReportContainerBtn">
+                    <img src="{{ url_for('static', path='imgs/close.svg') }}" alt="">
+                </button>
+                <form action="" method="post" class="create-form">
+                    <div class="sure-delete-title">Выберите причину жалобы</div>
+
+                    <label class="label-report">
+                        <input type="radio" name="complaint_type" class="radio-report" value="spam" required>
+                        Спам или реклама
+                    </label>
+
+                    <label class="label-report">
+                        <input type="radio" name="complaint_type" class="radio-report" value="offensive">
+                        Оскорбительное поведение
+                    </label>
+
+                    <label class="label-report">
+                        <input type="radio" name="complaint_type" class="radio-report" value="false_info">
+                        Ложная информация
+                    </label>
+
+                    <label class="label-report">
+                        <input type="radio" name="complaint_type" class="radio-report" value="violence">
+                        Пропаганда насилия
+                    </label>
+
+                    <label class="label-report">
+                        <input type="radio" name="complaint_type" class="radio-report" value="other">
+                        Другое
+                    </label>
+                    <button type="submit" class="btn report-submit-btn">
+                        Пожаловаться
                     </button>
                 </form>
             </section>
