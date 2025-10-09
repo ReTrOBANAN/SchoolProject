@@ -6,13 +6,14 @@
     <link rel="stylesheet" href="{{ url_for('static', path='/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='/auth.css') }}">
 </head>
-<body>
+<body style="background: {{ account[4] }};">
 <!--    <div class="login-button-container">-->
 <!--        <a href="/logout" class="login-button">Выйти</a>-->
 <!--    </div>-->
             <p><strong>id</strong> {{ account[0] }}
             <p><strong>Имя</strong> {{ account[1] }}
             <p><strong>username</strong> {{ account[2] }}
+            <p><strong>title</strong> {{ account[3] }}
 <a href="/logout">выйти</a>
 <a href="/">Назад</a>
 </body>
