@@ -13,12 +13,14 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(30))
     username: Mapped[str] = mapped_column(String(30))
-    password: Mapped[str] = mapped_column(String(30))
+    email: Mapped[str] = mapped_column(String(30))
+    code: Mapped[str] = mapped_column(String(30), nullable=True)
     title: Mapped[str] = mapped_column(String(30))
     background: Mapped[str] = mapped_column(String(30))
-    min_points: Mapped[int]
+    min_points: Mapped[int] = mapped_column(String(30), nullable=True)
+    ava: Mapped[str] = mapped_column(String(1000), nullable=True)
     def __repr__(self) -> str:
-        return f"User(id={self.id!r}, name={self.name!r}, username={self.username!r}, password={self.password!r}, title={self.title!r}, background={self.background!r}, min_points={self.min_points!r})"
+        return f"User(id={self.id!r}, name={self.name!r}, username={self.username!r}, email={self.email!r}, code={self.code!r}, title={self.title!r}, background={self.background!r}, min_points={self.min_points!r})"
 
 class Question(Base):
     __tablename__ = "questions"

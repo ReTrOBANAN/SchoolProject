@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Form, Response, requests
+from fastapi import FastAPI, Request, Form, Response, requests, UploadFile, File
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -6,6 +6,7 @@ from urllib.parse import unquote
 from datetime import datetime
 
 from requests import session
+from sqlalchemy import delete, and_, update
 from sqlalchemy.future import select
 from sqlalchemy.orm import Session
 from sqlalchemy import update
@@ -14,6 +15,7 @@ import init
 import function
 import sqlite3
 import uvicorn
+import uuid
 
 import os
 from pathlib import Path
@@ -21,6 +23,8 @@ from typing import Optional
 from datetime import datetime
 
 app = FastAPI()
+UPLOAD_DIR = Path("static/uploads")
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 BASE_DIR = Path(__file__).resolve().parent
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
@@ -28,7 +32,7 @@ templates = Jinja2Templates(directory=BASE_DIR / "templates")
 levels = [
     {"title": "Новичок", "min_points": 0, "background": "#DBDBDB"},
     {"title": "Любознательный", "min_points": 25, "background": "#FFFFFF"},
-    {"title": "Активный участник", "min_points": 50, "background": "#FF5B5B"},
+    {"title": "Активный участник", "min_points": 50, "background": "#B5FF8A"},
     {"title": "Эксперт", "min_points": 100, "background": "#9C9DFF"},
     {"title": "Мастер", "min_points": 200, "background": "#EF89FF"},
     {"title": "Гуру", "min_points": 500, "background": "#FF4BE7"},
@@ -56,35 +60,73 @@ async def doregister(
     request: Request,
     name: str = Form(...),
     login: str = Form(...),
-    password: str = Form(...),
+    email: str = Form(...),
 ):
-    with Session(init.engine) as conn:
-        stmt = select(init.User).where(init.User.username == login)
-        data = conn.execute(stmt).fetchall()
-        if data:
-            return JSONResponse({"error": "Пользователь с таким логином уже есть"}, status_code=400)
+    # Валидация email
+    if not function.is_valid_email(email):
+        return JSONResponse({"error": "Неверный формат email"}, status_code=400)
+    
+    # Проверяем существование пользователя
+    error = function.check_user_exists(login, email)
+    if error:
+        return JSONResponse({"error": error}, status_code=400)
+    
+    # Генерируем код
+    code = function.generate_code()
+    print(code)
+    
+    # Сохраняем данные во временное хранилище
+    if not function.save_registration_data(email, name, login, code):
+        return JSONResponse({"error": "Ошибка сохранения данных"}, status_code=500)
+    
+    # Отправляем код
+    if not function.send(email, code):
+        function.delete_registration_data(email)  # Удаляем данные если отправка не удалась
+        return JSONResponse({"error": "Ошибка отправки email"}, status_code=500)
+    
+    redirect = RedirectResponse(url="/emailregister", status_code=303)
+    redirect.set_cookie(key="verification_email", value=email, httponly=True, max_age=600)  # 10 минут
+    return redirect
 
-        else:
-            user = init.User(
-                name=name,
-                username=login,
-                password=function.hash_password(password),
-                title="Участник",
-                background="#DBDBDB",
-                min_points=0
-            )
-            conn.add(user)
-            conn.commit()
-    conn = Session(init.engine)
-    stmt = select(init.User).where(init.User.username == login)
-    id = conn.execute(stmt).fetchall()[0][0].id
-    conn.commit()
-    conn.close()
+@app.get("/emailregister", tags="Регистрация")
+async def email_verification_page(request: Request):
+    return templates.TemplateResponse("email.html", {"request": request})
+
+@app.post("/doemailregister", tags="Регистрация")
+async def doemailregister(
+    request: Request,
+    code: str = Form(...),
+):
+    email = request.cookies.get("verification_email")
+    
+    if not email:
+        return JSONResponse({"error": "Сессия истекла. Пройдите регистрацию заново."}, status_code=400)
+    
+    # Проверяем код и получаем данные регистрации
+    user_data = function.is_code_valid(email, code)
+    if not user_data:
+        return JSONResponse({"error": "Неверный или просроченный код"}, status_code=400)
+    
+    # Создаем пользователя в базе данных
+    user = function.create_user(
+        name=user_data['name'],
+        login=user_data['login'],
+        email=email
+    )
+    
+    if not user:
+        return JSONResponse({"error": "Ошибка создания пользователя"}, status_code=500)
+    
+    # Удаляем использованные данные
+    function.delete_registration_data(email)
+    
+    # Успешная регистрация
     redirect = RedirectResponse(url="/", status_code=303)
-    # Устанавливаем куки
-    redirect.set_cookie(key="id", value=str(id))
-    redirect.set_cookie(key="name", value=function.encrypt(name))
-    redirect.set_cookie(key="username", value=function.encrypt(login))
+    redirect.set_cookie(key="id", value=str(user.id))
+    redirect.set_cookie(key="name", value=function.encrypt(user.name))
+    redirect.set_cookie(key="username", value=function.encrypt(user.username))
+    redirect.delete_cookie("verification_email")
+    
     return redirect
 
 @app.get("/login", tags="Логин")
@@ -97,23 +139,78 @@ async def login(request: Request):
 @app.post("/dologin", tags="Логин")
 async def dologin(
     request: Request,
-    auth: str = Form(...),
-    password: str = Form(...)
+    auth: str = Form(...),  # Логин или email
 ):
-    error = True
     with Session(init.engine) as conn:
-        stmt = select(init.User).where(init.User.username == auth)
-        data = conn.execute(stmt).fetchall()
-        if data and data[0][0].password == function.hash_password(password):
-            # Создаем редирект-ответ
-            redirect = RedirectResponse(url="/", status_code=303)
-            # Устанавливаем куки
-            redirect.set_cookie(key="id", value=str(data[0][0].id))
-            redirect.set_cookie(key="name", value=function.encrypt(data[0][0].name))
-            redirect.set_cookie(key="username", value=function.encrypt(data[0][0].username))
-            return redirect
-        else:
-            return JSONResponse({"error": "Неверный логин или пароль"}, status_code=400)
+        # Ищем пользователя по логину или email
+        stmt = select(init.User).where(
+            (init.User.username == auth) | (init.User.email == auth)
+        )
+        data = conn.execute(stmt).first()
+        
+        if not data:
+            return JSONResponse({"error": "Пользователь не найден"}, status_code=400)
+        
+        user = data[0]
+        email = user.email
+        
+        # Генерируем код (используем существующую функцию)
+        code = function.generate_code()
+        
+        # Сохраняем данные для логина во временное хранилище
+        # Используем ту же функцию, но с другим префиксом в ключе
+        login_key = f"login_{email}"
+        if not function.save_registration_data(login_key, user.name, user.username, code):
+            return JSONResponse({"error": "Ошибка сохранения данных"}, status_code=500)
+        
+        # Отправляем код (существующая функция)
+        if not function.send(email, code):
+            function.delete_registration_data(login_key)
+            return JSONResponse({"error": "Ошибка отправки email"}, status_code=500)
+    
+    redirect = RedirectResponse(url="/emaillogin", status_code=303)
+    redirect.set_cookie(key="login_email", value=email, httponly=True, max_age=600)
+    return redirect
+
+@app.get("/emaillogin", tags="Логин")
+async def email_login_page(request: Request):
+    return templates.TemplateResponse("emaillogin.html", {"request": request})
+
+@app.post("/doemaillogin", tags="Логин")
+async def doemaillogin(
+    request: Request,
+    code: str = Form(...),
+):
+    email = request.cookies.get("login_email")
+    
+    if not email:
+        return JSONResponse({"error": "Сессия истекла. Пройдите авторизацию заново."}, status_code=400)
+    
+    # Проверяем код (используем существующую функцию с префиксом)
+    login_key = f"login_{email}"
+    user_data = function.is_code_valid(login_key, code)
+    if not user_data:
+        return JSONResponse({"error": "Неверный или просроченный код"}, status_code=400)
+    
+    # Получаем ID пользователя из базы
+    with Session(init.engine) as conn:
+        stmt = select(init.User).where(init.User.email == email)
+        user = conn.execute(stmt).first()
+        
+        if not user:
+            return JSONResponse({"error": "Пользователь не найден"}, status_code=400)
+    
+    # Удаляем использованные данные
+    function.delete_registration_data(login_key)
+    
+    # Успешная авторизация
+    redirect = RedirectResponse(url="/", status_code=303)
+    redirect.set_cookie(key="id", value=str(user[0].id))
+    redirect.set_cookie(key="name", value=function.encrypt(user[0].name))
+    redirect.set_cookie(key="username", value=function.encrypt(user[0].username))
+    redirect.delete_cookie("login_email")
+    
+    return redirect
 
 @app.get("/add", tags="Добавить вопрос")
 async def add(request: Request):
@@ -364,14 +461,12 @@ async def profile(request: Request, username: str):
         {"request": request, "account": account}
     )
 
-from sqlalchemy import delete as sql_delete, and_
-from sqlalchemy.orm import Session
-
 @app.post("/delete", tags=["Удаление вопроса"])
 async def delete_question(
     request: Request,
     description: str = Form(...),
     owner: str = Form(...),
+    id: int = Form(...),
 ):
     print(description, owner)
     current_user = function.decrypt(request.cookies.get("username"))
@@ -379,11 +474,14 @@ async def delete_question(
     if current_user == owner:
         with Session(init.engine) as session:
             # Правильное использование delete
-            stmt = sql_delete(init.Question).where(
-                and_(
+            stmt = delete(init.Question).where(
                     init.Question.description == description,
-                    init.Question.owner == current_user
-                )
+                    init.Question.owner == current_user,
+                    init.Question.id == id,
+            )
+            session.execute(stmt)
+            stmt = delete(init.Comment).where(
+                init.Comment.question_id == id,
             )
             session.execute(stmt)
             session.commit()  # Не забывайте скобки!
@@ -398,25 +496,171 @@ async def change_question(
     description: str = Form(...),
     new_description: str = Form(...),
     owner: str = Form(...),
+    grade: str = Form(...),
+    subject: str = Form(...),
+    id: str = Form(...),
 ):
     print(f"Старое описание: {description}, Новое описание: {new_description}, Владелец: {owner}")
     current_user = function.decrypt(request.cookies.get("username"))
     
+    # Проверка прав доступа
+    if current_user != owner:
+        return RedirectResponse("/", status_code=303)
+    
+    # Валидация новых данных
+    if not new_description.strip():
+        # Новое описание пустое
+        return RedirectResponse("/", status_code=303)
+    
+    if new_description.strip() == description.strip():
+        # Описание не изменилось
+        return RedirectResponse("/", status_code=303)
+    
+    # Дополнительная проверка: убедимся, что вопрос действительно существует
+    # и принадлежит пользователю
+    with Session(init.engine) as session:
+        # Сначала находим вопрос
+        question = session.get(init.Question, id)
+        
+        if not question:
+            # Вопрос не найден
+            return RedirectResponse("/", status_code=303)
+        
+        if question.owner != current_user:
+            # Вопрос не принадлежит пользователю
+            return RedirectResponse("/", status_code=303)
+        
+        # Обновляем вопрос
+        stmt = update(init.Question).where(
+            init.Question.id == id,
+            init.Question.owner == current_user  # Дополнительная защита
+        ).values(
+            description=new_description.strip(),  # Убираем лишние пробелы
+            grade=grade,
+            subject=subject
+            # owner не меняем, он остается тем же
+        )
+        
+        session.execute(stmt)
+        session.commit()
+    
+    return RedirectResponse("/", status_code=303)
+
+@app.post("/delete_answers", tags=["Удаление вопроса"])
+async def delete_answers(
+    request: Request,
+    description: str = Form(...),
+    owner: str = Form(...),
+    id: int = Form(...),
+):
+    print(description, owner)
+    current_user = function.decrypt(request.cookies.get("username"))
+    
     if current_user == owner:
         with Session(init.engine) as session:
-            # Обновление вопроса
-            stmt = update(init.Question).where(
-                and_(
-                    init.Question.description == description,
-                    init.Question.owner == current_user
-                )
-            ).values(description=new_description)
+            # Правильное использование delete
+            stmt = delete(init.Comment).where(
+                    init.Comment.description == description,
+                    init.Comment.owner == current_user,
+                    init.Comment.id == id,
+            )
             session.execute(stmt)
-            session.commit()
+            session.commit()  # Не забывайте скобки!
         
         return RedirectResponse("/", status_code=303)    
     else:
         return RedirectResponse("/", status_code=303)
+
+@app.post("/change_answer", tags=["Изменение вопроса"])
+async def change_answer(
+    request: Request,
+    description: str = Form(...),
+    new_description: str = Form(...),
+    owner: str = Form(...),
+    id: str = Form(...),
+):
+    current_user = function.decrypt(request.cookies.get("username"))
+    
+    # Проверка прав доступа
+    if current_user != owner:
+        return RedirectResponse("/", status_code=303)
+    
+    # Валидация новых данных
+    if not new_description.strip():
+        # Новое описание пустое
+        return RedirectResponse("/", status_code=303)
+    
+    if new_description.strip() == description.strip():
+        # Описание не изменилось
+        return RedirectResponse("/", status_code=303)
+    
+    # Дополнительная проверка: убедимся, что вопрос действительно существует
+    # и принадлежит пользователю
+    with Session(init.engine) as session:
+        # Сначала находим вопрос
+        question = session.get(init.Comment, id)
+        
+        if not question:
+            # Вопрос не найден
+            return RedirectResponse("/", status_code=303)
+        
+        if question.owner != current_user:
+            # Вопрос не принадлежит пользователю
+            return RedirectResponse("/", status_code=303)
+        
+        # Обновляем вопрос
+        stmt = update(init.Question).where(
+            init.Question.id == id,
+            init.Question.owner == current_user  # Дополнительная защита
+        ).values(
+            description=new_description.strip(),  # Убираем лишние пробелы
+            # owner не меняем, он остается тем же
+        )
+        
+        session.execute(stmt)
+        session.commit()
+    
+    return RedirectResponse("/", status_code=303)
+
+@app.post("/douserupload")
+async def douserupload(
+        request: Request,
+        name: str =  Form(...),
+        image: UploadFile = File(...)
+):
+    if request.cookies.get("id") != "1":
+        return RedirectResponse(url="/", status_code=303)
+    unique_filename = f"{uuid.uuid4()}_{image.filename}"
+
+    # Полный путь для сохранения (например: static/uploads/abc123_image.jpg)
+    file_path = UPLOAD_DIR / unique_filename
+
+    # Сохраняем файл на диск
+    with open(file_path, "wb") as buffer:
+        # Читаем содержимое загруженного файла и записываем в новый файл
+        buffer.write(await image.read())
+
+    # Закрываем загруженный файл (важно!)
+    await image.close()
+
+    db_image_path = unique_filename
+
+
+    with sqlite3.connect("kb.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO students (name, image_path) VALUES (?,?)",
+                       (name, db_image_path))
+        conn.commit()
+
+    # Возвращаем пользователя на главную страницу
+    return RedirectResponse(url="/", status_code=303)
+
+@app.get("/upload", tags=["Загрузить аву"])
+async def upload_form(request: Request):
+    return templates.TemplateResponse(
+        "add_ava.html", 
+        {"request": request}
+    )
 
 if __name__ == "__main__":
     init.Base.metadata.create_all(init.engine)

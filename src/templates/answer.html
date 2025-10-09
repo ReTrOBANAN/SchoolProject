@@ -139,6 +139,7 @@
                     <form action="/delete" method="post">
                         <input type="hidden" name="description" value='{{ result[4] }}'>
                         <input type="hidden" name="owner" value="{{ result[0] }}">
+                        <input type="hidden" name="id" value="{{ result[5] }}">
                         <button type="submit" class="btn delete-sure">
                             Удалить
                         </button>
@@ -159,7 +160,8 @@
                         <label for="questionText">Что изменить?</label>
                         <input type="hidden" name="description" value='{{ result[4] }}'>
                         <input type="hidden" name="owner" value="{{ result[0] }}">
-                        <textarea class="form-text-textarea" name="new_description" id="questionText" minlength="3" required></textarea>
+                        <input type="hidden" name="id" value="{{ result[5] }}">
+                        <textarea class="form-text-textarea" name="new_description" id="questionText" minlength="3" required>{{ result[4] }}</textarea>
                     </div>
                     <div class="create-form-section">
                         <select class="item-filter-subject input" id="subject-create" name="subject">
