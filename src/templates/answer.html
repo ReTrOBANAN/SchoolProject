@@ -6,7 +6,8 @@
     <link rel="stylesheet" href="{{ url_for('static', path='/questions.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='/answer.css') }}">
-    <script src="{{ url_for('static', path='js/answer.js') }}" defer></script>
+    <script src="{{ url_for('static', path='js/answerRender.js') }}" defer></script>
+    <script src="{{ url_for('static', path='js/answerEvents.js') }}" defer></script>
     <title>Ответ</title>
 </head>
 <body>
@@ -28,7 +29,7 @@
     </div>
     <main>
         <section class="question-container container">
-            <a href="/" class="arrow-back">
+            <a href="/" class="arrow-back-answer">
                 <img src="{{ url_for('static', path='imgs/arrow.svg') }}" alt="">
             </a>
             <div class="question">
@@ -37,16 +38,16 @@
                 </button>
                 <div class="question-edit-container" id="editContainer">
                     {% if username == result[0] %}
-                    <button type="button" class="delete-btn" id="deleteBtn">
+                    <button type="button" class="delete-btn" id="deleteQuestionBtn">
                         <img src="{{ url_for('static', path='imgs/delete.svg') }}" alt="">
                         Удалить
                     </button>
-                    <button type="submit" class="delete-btn" id="changeBtn">
+                    <button type="submit" class="delete-btn" id="changeQuestionBtn">
                         <img src="{{ url_for('static', path='imgs/edit.svg') }}" alt="">
                         Изменить
                     </button>
                     {% else %}
-                    <button type="submit" class="delete-btn" id="reportBtn">
+                    <button type="submit" class="delete-btn" id="reportQuestionBtn">
                         <img src="{{ url_for('static', path='imgs/flag.svg') }}" alt="">
                         Пожаловаться
                     </button>
@@ -81,23 +82,8 @@
                 <ul id="answerList" class="questions-content-list" data-questionid="{{ result[5] }}" data-username="{{ username }}">
                 </ul>
             </div>
-        <div>
-            {% if username == result[0] %}
-                <form action="/delete" method="post">
-                    <input type="hidden" name="description" value='{{ result[4] }}'>
-                    <input type="hidden" name="owner" value="{{ result[0] }}">
-                    <button type="submit" class="btn">Удалить</button>
-                </form>
-                <form action="/change" method="post">
-                    <input type="hidden" name="description" value='{{ result[4] }}'>
-                    <input type="hidden" name="owner" value="{{ result[0] }}">
-                    <textarea name="new_description"></textarea>
-                    <button type="submit" class="btn">Изменить</button>
-                </form>
-            {% endif %}
-        </div>
         </section>
-        <div class="overlay" id="overlay">
+        <div class="overlay" id="overlayCreate">
             <section class="create">
                 <button class="create-close-btn" id="close">
                     <img src="{{ url_for('static', path='imgs/close.svg') }}" alt="">
@@ -105,7 +91,7 @@
                 <form action="/doadd" method="post" class="create-form">
                     <div class="create-form-text">
                         <label for="questionText">Какой у вас вопрос?</label>
-                        <textarea class="form-text-textarea" name="description" id="questionText" minlength="3" required></textarea>
+                        <textarea class="form-text-textarea" name="description" id="questionText" minlength="1" required></textarea>
                     </div>
                     <div class="create-form-section">
                         <select class="item-filter-subject input" id="subject-create" name="subject">
@@ -133,9 +119,9 @@
                 </form>
             </section>
         </div>
-        <div class="overlay" id="overlaySureDelete">
+        <div class="overlay" id="overlaySureQuestionDelete">
             <section class="sure-delete">
-                <button class="create-close-btn" id="sureCloseBtn">
+                <button class="create-close-btn" id="sureCloseQuestionBtn">
                     <img src="{{ url_for('static', path='imgs/close.svg') }}" alt="">
                 </button>
                 <div class="sure-delete-title">Вы уверены что хотите удалить вопрос?</div>
@@ -147,15 +133,37 @@
                             Удалить
                         </button>
                     </form>
-                    <button type="submit" class="btn" id="sureCancelBtn">
+                    <button type="submit" class="btn" id="sureCancelQuestionBtn">
                         Отменить
                     </button>
                 </div>
             </section>
         </div>
-        <div class="overlay" id="overlayChangeContainer">
+
+        <div class="overlay" id="overlaySureAnswerDelete">
+            <section class="sure-delete">
+                <button class="create-close-btn" id="sureCloseAnswerBtn">
+                    <img src="{{ url_for('static', path='imgs/close.svg') }}" alt="">
+                </button>
+                <div class="sure-delete-title">Вы уверены что хотите удалить ответ?</div>
+                <div class="sure-delete-btns">
+                    <form action="/delete" method="post">
+                        <input type="hidden" name="description" value='{{ result[4] }}'>
+                        <input type="hidden" name="owner" value="{{ result[0] }}">
+                        <button type="submit" class="btn delete-sure">
+                            Удалить
+                        </button>
+                    </form>
+                    <button type="submit" class="btn" id="sureCancelAnswerBtn">
+                        Отменить
+                    </button>
+                </div>
+            </section>
+        </div>
+        
+        <div class="overlay" id="overlayChangeQuestionContainer">
             <section class="create">
-                <button class="create-close-btn" id="closeChangeContainerBtn">
+                <button class="create-close-btn" id="closeChangeQuestionContainerBtn">
                     <img src="{{ url_for('static', path='imgs/close.svg') }}" alt="">
                 </button>
                 <form action="/change" method="post" class="create-form">
@@ -163,7 +171,7 @@
                         <label for="questionText">Что изменить?</label>
                         <input type="hidden" name="description" value='{{ result[4] }}'>
                         <input type="hidden" name="owner" value="{{ result[0] }}">
-                        <textarea class="form-text-textarea" name="new_description" id="questionText" minlength="3" required></textarea>
+                        <textarea class="form-text-textarea" name="new_description" id="questionText" minlength="1"></textarea>
                     </div>
                     <div class="create-form-section">
                         <select class="item-filter-subject input" name="subject">
@@ -193,13 +201,72 @@
                 </form>
             </section>
         </div>
-        <div class="overlay" id="overlayReportContainer">
+
+        <div class="overlay" id="overlayChangeAnswerContainer">
+            <section class="create">
+                <button class="create-close-btn" id="closeChangeAnswerContainerBtn">
+                    <img src="{{ url_for('static', path='imgs/close.svg') }}" alt="">
+                </button>
+                <form action="/change" method="post" class="create-form">
+                    <div class="create-form-text">
+                        <label for="questionText">Что изменить?</label>
+                        <input type="hidden" name="description" value='{{ result[4] }}'>
+                        <input type="hidden" name="owner" value="{{ result[0] }}">
+                        <textarea class="form-text-textarea" name="new_description" id="questionText" minlength="1"></textarea>
+                    </div>
+                    <button type="submit" class="btn">
+                        Изменить
+                    </button>
+                </form>
+            </section>
+        </div>
+        
+        <div class="overlay" id="overlayReportQuestionContainer">
             <section class="report">
-                <button class="create-close-btn" id="closeReportContainerBtn">
+                <button class="create-close-btn" id="closeReportQuestionContainerBtn">
                     <img src="{{ url_for('static', path='imgs/close.svg') }}" alt="">
                 </button>
                 <form action="" method="post" class="create-form">
-                    <div class="sure-delete-title">Выберите причину жалобы</div>
+                    <div class="report-title">Выберите причину жалобы</div>
+
+                    <label class="label-report">
+                        <input type="radio" name="complaint_type" class="radio-report" value="spam" required>
+                        Спам или реклама
+                    </label>
+
+                    <label class="label-report">
+                        <input type="radio" name="complaint_type" class="radio-report" value="offensive">
+                        Оскорбительное поведение
+                    </label>
+
+                    <label class="label-report">
+                        <input type="radio" name="complaint_type" class="radio-report" value="false_info">
+                        Ложная информация
+                    </label>
+
+                    <label class="label-report">
+                        <input type="radio" name="complaint_type" class="radio-report" value="violence">
+                        Пропаганда насилия
+                    </label>
+
+                    <label class="label-report">
+                        <input type="radio" name="complaint_type" class="radio-report" value="other">
+                        Другое
+                    </label>
+                    <button type="submit" class="btn report-submit-btn">
+                        Пожаловаться
+                    </button>
+                </form>
+            </section>
+        </div>
+
+        <div class="overlay" id="overlayReportAnswerContainer">
+            <section class="report">
+                <button class="create-close-btn" id="closeReportAnswerContainerBtn">
+                    <img src="{{ url_for('static', path='imgs/close.svg') }}" alt="">
+                </button>
+                <form action="" method="post" class="create-form">
+                    <div class="report-title">Выберите причину жалобы</div>
 
                     <label class="label-report">
                         <input type="radio" name="complaint_type" class="radio-report" value="spam" required>

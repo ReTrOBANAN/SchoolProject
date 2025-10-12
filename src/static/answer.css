@@ -7,6 +7,10 @@
     padding-bottom: 30px;
 }
 
+.arrow-back-answer {
+    margin-right: auto;
+}
+
 .question {
     display: flex;
     flex-direction: column;
@@ -123,13 +127,20 @@
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: var(--color-light);
-    width: 50%;
+    width: 70%;
     height: 70%;
-    max-width: 600px;
-    max-height: 600px;
+    max-width: 500px;
+    max-height: 500px;
     border-radius: 10px;
     padding: 45px 15px;
     overflow-y: auto;
+}
+.report-title {
+    text-align: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    font-weight: 700;
+    font-size: clamp(16px, 1.22vw, 32px);
 }
 .label-report {
     height: 100%;
