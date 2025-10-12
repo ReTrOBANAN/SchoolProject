@@ -128,17 +128,13 @@ const editBtn = document.getElementById('editBtn')
 const editContainer = document.getElementById('editContainer')
 if (editBtn && editContainer) {
     editBtn.addEventListener('click', (e) => {
-        e.stopPropagation()
-        if (editContainer.classList.value.includes('active')) {
-            editContainer.classList.remove('active')
-        }
-        else {
-            editContainer.classList.add('active')
-        }
-    })
+        e.stopPropagation();
 
-    document.addEventListener('click', () => {
-        editContainer.classList.remove('active')
+        const activeContainers = document.querySelectorAll('.question-edit-container.active');
+        activeContainers.forEach(active => {
+            if (active !== editContainer) active.classList.remove('active');
+        });
+        editContainer.classList.toggle('active');
     })
 }
 
@@ -148,21 +144,19 @@ answersList.addEventListener('click', (e) => {
     const container = btn.closest('.questions-content-item').querySelector('.question-edit-container')
     if (!container) return
 
-    e.stopPropagation()
-    if (container.classList.value.includes('active')) {
-        container.classList.remove('active')
-    }
-    else {
-        container.classList.add('active')
-    }
+    const activeContainers = document.querySelectorAll('.question-edit-container.active');
+    activeContainers.forEach(active => {
+        if (active !== container) active.classList.remove('active');
+    });
+    e.stopPropagation();
+    container.classList.toggle('active');
+    
 });
 document.addEventListener('click', (e) => {
     const activeContainers = document.querySelectorAll('.question-edit-container.active');
 
     activeContainers.forEach(container => {
-        if (!container.contains(e.target)) {
-            container.classList.remove('active');
-        }
+        container.classList.remove('active');
     });
 });
 
