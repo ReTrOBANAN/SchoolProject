@@ -480,6 +480,39 @@ async def change_answer(
     else:
         return RedirectResponse("/", status_code=303)
 
+@app.post("/report_question", tags=["репорты"])
+async def report_question(
+    request: Request,
+    question_id: str = Form(None),
+    reson: str = Form(None),
+):
+    with Session(init.engine) as conn:
+            reporq = init.Reportq(
+                question_id = question_id,
+                reson = reson,
+            )
+            conn.add(reporq)
+            conn.commit()  # Важно: commit после добавления
+    return RedirectResponse(f"/question/{question_id}", status_code=303)
+
+@app.post("/report_question", tags=["репорты"])
+async def report_question(
+    request: Request,
+    answer_id: str = Form(None),
+    question_id: str = Form(None),
+    reson: str = Form(None),
+):
+    with Session(init.engine) as conn:
+            repora = init.Reporta(
+                answer_id = answer_id,
+                reson = reson,
+            )
+            conn.add(repora)
+            conn.commit()  # Важно: commit после добавления
+    return RedirectResponse(f"/question/{question_id}", status_code=303)
+        
+
+
 if __name__ == "__main__":
     init.Base.metadata.create_all(init.engine)
     uvicorn.run("main:app", reload=True)
