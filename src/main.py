@@ -436,8 +436,8 @@ async def delete_answer(
     request: Request,
     owner: str = Form(None),
     id: str = Form(None),
+    questionId: str = Form(None),
 ):
-    print(f"owner, id")
     current_user = function.decrypt(request.cookies.get("username"))
     if current_user == owner:
         with Session(init.engine) as session:
@@ -451,7 +451,7 @@ async def delete_answer(
             session.execute(stmt)
             session.commit()  # Не забывайте скобки!
         
-        return RedirectResponse("/", status_code=303)    
+        return RedirectResponse(f"/question/{questionId}", status_code=303)    
     else:
         return RedirectResponse("/", status_code=303)
 
