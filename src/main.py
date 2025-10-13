@@ -4,6 +4,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from urllib.parse import unquote
 from datetime import datetime
+from sqlalchemy import delete as sql_delete, and_
+from sqlalchemy.orm import Session
 
 from requests import session
 from sqlalchemy.future import select
@@ -361,25 +363,27 @@ async def profile(request: Request, username: str):
         {"request": request, "account": account}
     )
 
-from sqlalchemy import delete as sql_delete, and_
-from sqlalchemy.orm import Session
-
 @app.post("/delete", tags=["Удаление вопроса"])
 async def delete_question(
     request: Request,
-    description: str = Form(...),
     owner: str = Form(...),
+    question_id: str = Form(...),
 ):
-    print(description, owner)
+    print(question_id)
     current_user = function.decrypt(request.cookies.get("username"))
-    
     if current_user == owner:
         with Session(init.engine) as session:
             # Правильное использование delete
             stmt = sql_delete(init.Question).where(
                 and_(
-                    init.Question.description == description,
-                    init.Question.owner == current_user
+                    init.Question.owner == current_user,
+                    init.Question.id == question_id, 
+                )
+            )
+            session.execute(stmt)
+            stmt = sql_delete(init.Comment).where(
+                and_(
+                    init.Comment.question_id == question_id,
                 )
             )
             session.execute(stmt)
@@ -395,19 +399,31 @@ async def change_question(
     description: str = Form(...),
     new_description: str = Form(...),
     owner: str = Form(...),
+    subject: str = Form(...),
+    grade: str = Form(...),
+    id: int = Form(...),
 ):
-    print(f"Старое описание: {description}, Новое описание: {new_description}, Владелец: {owner}")
     current_user = function.decrypt(request.cookies.get("username"))
-    
     if current_user == owner:
+        print(description)
         with Session(init.engine) as session:
-            # Обновление вопроса
-            stmt = update(init.Question).where(
-                and_(
-                    init.Question.description == description,
-                    init.Question.owner == current_user
-                )
-            ).values(description=new_description)
+            if new_description:
+                # Обновление вопроса
+                stmt = update(init.Question).where(
+                    and_(
+                        init.Question.description == description,
+                        init.Question.owner == current_user,
+                        init.Question.id == id,
+                    )
+                ).values(description=new_description, grade=grade, subject=subject)
+            else:
+                stmt = update(init.Question).where(
+                    and_(
+                        init.Question.description == description,
+                        init.Question.owner == current_user,
+                        init.Question.id == id,
+                    )
+                ).values(grade=grade, subject=subject)
             session.execute(stmt)
             session.commit()
         
