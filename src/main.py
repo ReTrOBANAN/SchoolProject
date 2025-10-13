@@ -431,6 +431,54 @@ async def change_question(
     else:
         return RedirectResponse("/", status_code=303)
 
+@app.post("/delete_answer", tags=["Удаление вопроса"])
+async def delete_answer(
+    request: Request,
+    owner: str = Form(...),
+    id: str = Form(...),
+):
+    current_user = function.decrypt(request.cookies.get("username"))
+    if current_user == owner:
+        with Session(init.engine) as session:
+            # Правильное использование delete
+            stmt = sql_delete(init.Comment).where(
+                and_(
+                    init.Comment.owner == current_user,
+                    init.Comment.id == id, 
+                )
+            )
+            session.execute(stmt)
+            session.commit()  # Не забывайте скобки!
+        
+        return RedirectResponse("/", status_code=303)    
+    else:
+        return RedirectResponse("/", status_code=303)
+
+@app.post("/change_answer", tags=["Изменение вопроса"])
+async def change_answer(
+    request: Request,
+    new_description: str = Form(...),
+    owner: str = Form(...),
+    id: int = Form(...),
+):
+    current_user = function.decrypt(request.cookies.get("username"))
+    if current_user == owner:
+        if new_description:
+            with Session(init.engine) as session:
+                    stmt = update(init.Comment).where(
+                        and_(
+                            init.Comment.owner == current_user,
+                            init.Comment.id == id,
+                        )
+                    ).values(description=new_description)
+                session.commit()
+            
+            return RedirectResponse("/", status_code=303) 
+        else:
+            return RedirectResponse("/", status_code=303)
+    else:
+        return RedirectResponse("/", status_code=303)
+
 if __name__ == "__main__":
     init.Base.metadata.create_all(init.engine)
     uvicorn.run("main:app", reload=True)
