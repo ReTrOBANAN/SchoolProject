@@ -30,6 +30,7 @@ function timeAgo(dateString) {
 }
 
 
+
 const answersList = document.getElementById('answerList')
 async function start() {
     try {
@@ -65,7 +66,7 @@ function toHTML(answer) {
                 <img src="/static/imgs/more.svg" alt="">
             </button>
             <div class="question-edit-container" id="editContainer">
-                <button type="button" class="delete-btn" id="deleteAnswerBtn">
+                <button type="button" class="delete-btn" id="deleteAnswerBtn" data-id="${answer.id}" data-owner="${answer.username}">
                     <img src="/static/imgs/delete.svg" alt="">
                     Удалить
                 </button>

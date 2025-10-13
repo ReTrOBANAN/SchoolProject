@@ -75,6 +75,12 @@ answersList.addEventListener('click', (e) => {
 
         if (overlaySureAnswerDelete && sureCancelAnswerBtn && sureCloseAnswerBtn) {
             overlaySureAnswerDelete.classList.add('active')
+
+            const deleteAnswerOwner = document.getElementById('deleteAnswerOwner')
+            const deleteAnswerId = document.getElementById('deleteAnswerId')
+            deleteAnswerOwner.value = deleteAnswerBtn.dataset.id
+            deleteAnswerId.value = deleteAnswerBtn.dataset.owner
+
             sureCancelAnswerBtn.addEventListener('click', () => {
                 overlaySureAnswerDelete.classList.remove('active')
             })
