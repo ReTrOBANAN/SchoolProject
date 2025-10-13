@@ -434,9 +434,10 @@ async def change_question(
 @app.post("/delete_answer", tags=["Удаление вопроса"])
 async def delete_answer(
     request: Request,
-    owner: str = Form(...),
-    id: str = Form(...),
+    owner: str = Form(None),
+    id: str = Form(None),
 ):
+    print(f"owner, id")
     current_user = function.decrypt(request.cookies.get("username"))
     if current_user == owner:
         with Session(init.engine) as session:
@@ -465,7 +466,7 @@ async def change_answer(
     if current_user == owner:
         if new_description:
             with Session(init.engine) as session:
-                    stmt = update(init.Comment).where(
+                stmt = update(init.Comment).where(
                         and_(
                             init.Comment.owner == current_user,
                             init.Comment.id == id,
