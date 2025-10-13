@@ -78,8 +78,10 @@ answersList.addEventListener('click', (e) => {
 
             const deleteAnswerOwner = document.getElementById('deleteAnswerOwner')
             const deleteAnswerId = document.getElementById('deleteAnswerId')
-            deleteAnswerOwner.value = deleteAnswerBtn.dataset.id
-            deleteAnswerId.value = deleteAnswerBtn.dataset.owner
+            const deleteQuestionId = document.getElementById('deleteQuestionId')
+            deleteAnswerOwner.value = deleteAnswerBtn.dataset.owner
+            deleteAnswerId.value = deleteAnswerBtn.dataset.id
+            deleteQuestionId.value = deleteAnswerBtn.dataset.questionid
 
             sureCancelAnswerBtn.addEventListener('click', () => {
                 overlaySureAnswerDelete.classList.remove('active')

@@ -472,7 +472,7 @@ async def change_answer(
                             init.Comment.id == id,
                         )
                     ).values(description=new_description)
-                session.commit()
+            session.commit()
             
             return RedirectResponse("/", status_code=303) 
         else:
