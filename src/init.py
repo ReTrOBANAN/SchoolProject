@@ -41,6 +41,22 @@ class Comment(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     def __repr__(self) -> str:
         return f"Question(id={self.id!r}, owner={self.owner!r}, question_id={self.question_id!r}, description={self.description!r}, created_at={self.created_at!r})"
+    
+class Reportq(Base):
+    __tablename__ = "ReportsQ"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    question_id: Mapped[int]
+    reson: Mapped[str]
+    def __repr__(self) -> str:
+        return f"Question(id={self.id!r}, question_id={self.question_id!r}, reson={self.reson!r})"
+    
+class Reporta(Base):
+    __tablename__ = "ReportsA"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    answer_id: Mapped[int]
+    reson: Mapped[str]
+    def __repr__(self) -> str:
+        return f"Question(id={self.id!r}, answer_id={self.answer_id!r}, reson={self.reson!r})"
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 db_path = os.path.join(current_dir, 'users.db')

@@ -434,8 +434,9 @@ async def change_question(
 @app.post("/delete_answer", tags=["Удаление вопроса"])
 async def delete_answer(
     request: Request,
-    owner: str = Form(...),
-    id: str = Form(...),
+    owner: str = Form(None),
+    id: str = Form(None),
+    questionId: str = Form(None),
 ):
     current_user = function.decrypt(request.cookies.get("username"))
     if current_user == owner:
@@ -450,7 +451,7 @@ async def delete_answer(
             session.execute(stmt)
             session.commit()  # Не забывайте скобки!
         
-        return RedirectResponse("/", status_code=303)    
+        return RedirectResponse(f"/question/{questionId}", status_code=303)    
     else:
         return RedirectResponse("/", status_code=303)
 
@@ -465,7 +466,7 @@ async def change_answer(
     if current_user == owner:
         if new_description:
             with Session(init.engine) as session:
-                    stmt = update(init.Comment).where(
+                stmt = update(init.Comment).where(
                         and_(
                             init.Comment.owner == current_user,
                             init.Comment.id == id,
@@ -478,6 +479,39 @@ async def change_answer(
             return RedirectResponse("/", status_code=303)
     else:
         return RedirectResponse("/", status_code=303)
+
+@app.post("/report_question", tags=["репорты"])
+async def report_question(
+    request: Request,
+    question_id: str = Form(None),
+    reson: str = Form(None),
+):
+    with Session(init.engine) as conn:
+            reporq = init.Reportq(
+                question_id = question_id,
+                reson = reson,
+            )
+            conn.add(reporq)
+            conn.commit()  # Важно: commit после добавления
+    return RedirectResponse(f"/question/{question_id}", status_code=303)
+
+@app.post("/report_answer", tags=["репорты"])
+async def report_answer(
+    request: Request,
+    answer_id: str = Form(None),
+    question_id: str = Form(None),
+    reson: str = Form(None),
+):
+    with Session(init.engine) as conn:
+            repora = init.Reporta(
+                answer_id = answer_id,
+                reson = reson,
+            )
+            conn.add(repora)
+            conn.commit()  # Важно: commit после добавления
+    return RedirectResponse(f"/question/{question_id}", status_code=303)
+        
+
 
 if __name__ == "__main__":
     init.Base.metadata.create_all(init.engine)
