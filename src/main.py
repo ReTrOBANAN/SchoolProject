@@ -495,8 +495,8 @@ async def report_question(
             conn.commit()  # Важно: commit после добавления
     return RedirectResponse(f"/question/{question_id}", status_code=303)
 
-@app.post("/report_question", tags=["репорты"])
-async def report_question(
+@app.post("/report_answer", tags=["репорты"])
+async def report_answer(
     request: Request,
     answer_id: str = Form(None),
     question_id: str = Form(None),
