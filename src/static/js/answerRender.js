@@ -60,6 +60,7 @@ function render(answers = []) {
 
 function toHTML(answer) {
     const username = answersList.dataset.username
+    console.log(answer)
     if (username === answer.username) {
         return `<li class="questions-content-item">
             <button class="edit-btn" id="editBtn">
@@ -70,7 +71,7 @@ function toHTML(answer) {
                     <img src="/static/imgs/delete.svg" alt="">
                     Удалить
                 </button>
-                <button type="button" class="delete-btn" id="changeAnswerBtn">
+                <button type="button" class="delete-btn" id="changeAnswerBtn" data-id="${answer.id}" data-owner="${answer.username}" data-questionId="${answer.question_id}">
                     <img src="/static/imgs/edit.svg" alt="">
                     Изменить
                 </button>
@@ -92,7 +93,7 @@ function toHTML(answer) {
                 <img src="/static/imgs/more.svg" alt="">
             </button>
             <div class="question-edit-container" id="editContainer">
-                <button type="button" class="delete-btn" id="reportAnswerBtn">
+                <button type="button" class="delete-btn" id="reportAnswerBtn" data-id="${answer.id}" data-questionId="${answer.question_id}">
                     <img src="/static/imgs/flag.svg" alt="">
                     Пожаловаться
                 </button>
