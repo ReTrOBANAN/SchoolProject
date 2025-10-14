@@ -56,10 +56,17 @@ answersList.addEventListener('click', (e) => {
     if (reportAnswerBtn) {
         const overlayReportAnswerContainer = document.getElementById('overlayReportAnswerContainer');
         const closeReportAnswerContainerBtn = document.getElementById('closeReportAnswerContainerBtn');
-        console.log(overlayChangeQuestionContainer, closeReportAnswerContainerBtn)
         
         if (closeReportAnswerContainerBtn && closeReportAnswerContainerBtn) {
             overlayReportAnswerContainer.classList.add('active');
+
+            const reportAnswerId = document.getElementById('reportAnswerId')
+            const reportAnswerQuestionId = document.getElementById('reportAnswerQuestionId')
+
+            reportAnswerId.value = reportAnswerBtn.dataset.id
+            reportAnswerQuestionId.value = reportAnswerBtn.dataset.questionid
+            
+
             
             // Убираем дублирование обработчиков
             closeReportAnswerContainerBtn.onclick = () => {
@@ -78,10 +85,10 @@ answersList.addEventListener('click', (e) => {
 
             const deleteAnswerOwner = document.getElementById('deleteAnswerOwner')
             const deleteAnswerId = document.getElementById('deleteAnswerId')
-            const deleteQuestionId = document.getElementById('deleteQuestionId')
+            const deleteAnswerQuestionId = document.getElementById('deleteAnswerQuestionId')
             deleteAnswerOwner.value = deleteAnswerBtn.dataset.owner
             deleteAnswerId.value = deleteAnswerBtn.dataset.id
-            deleteQuestionId.value = deleteAnswerBtn.dataset.questionid
+            deleteAnswerQuestionId.value = deleteAnswerBtn.dataset.questionid
 
             sureCancelAnswerBtn.addEventListener('click', () => {
                 overlaySureAnswerDelete.classList.remove('active')
@@ -96,6 +103,14 @@ answersList.addEventListener('click', (e) => {
         const closeChangeAnswerContainerBtn = document.getElementById('closeChangeAnswerContainerBtn')
         if (overlayChangeAnswerContainer && closeChangeAnswerContainerBtn) {
             overlayChangeAnswerContainer.classList.add('active')
+
+            const changeAnswerOwner = document.getElementById('changeAnswerOwner')
+            const changeAnswerId = document.getElementById('changeAnswerId')
+            const changeAnswerQuestionId = document.getElementById('changeAnswerQuestionId')
+            changeAnswerOwner.value = changeAnswerBtn.dataset.owner
+            changeAnswerId.value = changeAnswerBtn.dataset.id
+            changeAnswerQuestionId.value = changeAnswerBtn.dataset.questionid
+
             closeChangeAnswerContainerBtn.addEventListener('click', () => {
                 overlayChangeAnswerContainer.classList.remove('active')
             })
