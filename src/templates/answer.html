@@ -33,25 +33,27 @@
                 <img src="{{ url_for('static', path='imgs/arrow.svg') }}" alt="">
             </a>
             <div class="question">
-                <button class="edit-btn" id="editBtn">
-                    <img src="{{ url_for('static', path='imgs/more.svg') }}" alt="">
-                </button>
-                <div class="question-edit-container" id="editContainer">
-                    {% if username == result[0] %}
-                    <button type="button" class="delete-btn" id="deleteQuestionBtn">
-                        <img src="{{ url_for('static', path='imgs/delete.svg') }}" alt="">
-                        Удалить
+                <div class="edit-wrapper">
+                    <button class="edit-btn" id="editBtn">
+                        <img src="{{ url_for('static', path='imgs/more.svg') }}" alt="">
                     </button>
-                    <button type="submit" class="delete-btn" id="changeQuestionBtn">
-                        <img src="{{ url_for('static', path='imgs/edit.svg') }}" alt="">
-                        Изменить
-                    </button>
-                    {% else %}
-                    <button type="submit" class="delete-btn" id="reportQuestionBtn">
-                        <img src="{{ url_for('static', path='imgs/flag.svg') }}" alt="">
-                        Пожаловаться
-                    </button>
-                    {% endif %}
+                    <div class="question-edit-container" id="editContainer">
+                        {% if username == result[0] %}
+                        <button type="button" class="delete-btn" id="deleteQuestionBtn">
+                            <img src="{{ url_for('static', path='imgs/delete.svg') }}" alt="">
+                            Удалить
+                        </button>
+                        <button type="submit" class="delete-btn" id="changeQuestionBtn">
+                            <img src="{{ url_for('static', path='imgs/edit.svg') }}" alt="">
+                            Изменить
+                        </button>
+                        {% else %}
+                        <button type="submit" class="delete-btn" id="reportQuestionBtn">
+                            <img src="{{ url_for('static', path='imgs/flag.svg') }}" alt="">
+                            Пожаловаться
+                        </button>
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="questions-item-header">
                     <div>{{ result[1] }} ({{result[0]}})</div>
@@ -59,9 +61,7 @@
                     <div>{{ result[3] }} класс</div>
                     <div id="questionTime" data-question-time="{{ result[6] }}"></div>
                 </div>
-                <div class="question-text">
-                    {{ result[4] }}
-                </div>
+                <div class="question-text">{{ result[4] }}</div>
             </div>
             <div class="answers">
                 <h1 class="answers-title">Ответы</h1>
@@ -70,7 +70,7 @@
                     <form action="/addcomment" method="post" class="answer-textarea">
                         <label for="questionText">Хотите ответить?</label>
                         <input type="hidden" value="{{ result[5] }}" name="id">
-                        <textarea class="form-text-textarea" name="comment" id="questionText"></textarea>
+                        <textarea class="form-text-textarea" name="comment" id="questionText" required></textarea>
                         <button type="submit" class="answer-btn btn">Ответить</button>
                     </form>                  
                 </div>
@@ -174,7 +174,7 @@
                         <input type="hidden" name="description" value='{{ result[4] }}'>
                         <input type="hidden" name="owner" value="{{ result[0] }}">
                         <input type="hidden" name="id" value="{{ result[5] }}">
-                        <textarea class="form-text-textarea" name="new_description" id="questionText" minlength="1"></textarea>
+                        <textarea class="form-text-textarea" name="new_description" id="questionText" minlength="1" maxlength="10000" required></textarea>
                     </div>
                     <div class="create-form-section">
                         <select class="item-filter-subject input" name="subject">
@@ -215,7 +215,6 @@
                         <label for="questionText">Что изменить?</label>
                         <input id="changeAnswerOwner" type="hidden" name="owner" value="">
                         <input id="changeAnswerId" type="hidden" name="id" value="">
-                        <input id="changeAnswerQuestionId" type="hidden" name="questionId" value="">
                         <textarea class="form-text-textarea" name="new_description" id="questionText" minlength="1"></textarea>
                     </div>
                     <button type="submit" class="btn">
@@ -233,7 +232,7 @@
                 <form action="/report_question" method="post" class="create-form">
                     <div class="report-title">Выберите причину жалобы</div>
                     
-                    <input id="reportQuestionQuestionId" type="hidden" name="questionId" value="{{ result[5] }}">
+                    <input id="reportQuestionQuestionId" type="hidden" name="question_id" value="{{ result[5] }}">
 
                     <label class="label-report">
                         <input type="radio" name="reson" class="radio-report" value="spam" required>
@@ -273,10 +272,8 @@
                 </button>
                 <form action="/report_answer" method="post" class="create-form">
                     <div class="report-title">Выберите причину жалобы</div>
-
                     <input id="reportAnswerId" type="hidden" name="answerId" value="">
                     <input id="reportAnswerQuestionId" type="hidden" name="questionId" value="">
-
 
                     <label class="label-report">
                         <input type="radio" name="complaint_type" class="radio-report" value="spam" required>

@@ -76,6 +76,14 @@ body {
     justify-content: flex-start;
 }
 
+.questions-item-body {
+    white-space: pre-wrap;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;       /* Количество строк */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
 /* create */
 .overlay {
     position: fixed;
@@ -128,6 +136,7 @@ body {
     transition: border-color 0.2s, box-shadow 0.2s;
     color: var(--color-blue-dark);
 }
+
 
 .form-text-textarea:focus {
   outline: none;

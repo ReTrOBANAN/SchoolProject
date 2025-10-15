@@ -8,10 +8,19 @@ if (createBtn) {
 }
 
 
-closeBtn.addEventListener('click', () => {
-    overlayContainer.classList.remove('active')
-})
+if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+        overlayContainer.classList.remove('active')
+        
+        const selects = overlayContainer.querySelectorAll('select')
+        selects.forEach((select) => {
+            select.selectedIndex = 0;
+        })
 
+        const textarea = overlayContainer.querySelector('textarea')
+        if (textarea) textarea.value = ''
+    })
+}
 
 const editBtn = document.getElementById('editBtn')
 const editContainer = document.getElementById('editContainer')
@@ -32,6 +41,8 @@ answersList.addEventListener('click', (e) => {
     const reportAnswerBtn = e.target.closest('#reportAnswerBtn')
     const deleteAnswerBtn = e.target.closest('#deleteAnswerBtn')
     const changeAnswerBtn = e.target.closest('#changeAnswerBtn')
+    const finishReadBtn = e.target.closest('#finishReadBtn')
+    console.log(finishReadBtn)
 
     
     // Обработка кнопки редактирования
@@ -106,13 +117,14 @@ answersList.addEventListener('click', (e) => {
 
             const changeAnswerOwner = document.getElementById('changeAnswerOwner')
             const changeAnswerId = document.getElementById('changeAnswerId')
-            const changeAnswerQuestionId = document.getElementById('changeAnswerQuestionId')
             changeAnswerOwner.value = changeAnswerBtn.dataset.owner
             changeAnswerId.value = changeAnswerBtn.dataset.id
-            changeAnswerQuestionId.value = changeAnswerBtn.dataset.questionid
 
             closeChangeAnswerContainerBtn.addEventListener('click', () => {
                 overlayChangeAnswerContainer.classList.remove('active')
+
+                const textarea = overlayChangeAnswerContainer.querySelector('textarea')
+                if (textarea) textarea.value = ''
             })
         }
     }
@@ -154,6 +166,14 @@ if (changeQuestionBtn && overlayChangeQuestionContainer && closeChangeQuestionCo
     })
     closeChangeQuestionContainerBtn.addEventListener('click', () => {
         overlayChangeQuestionContainer.classList.remove('active')
+
+        const selects = overlayChangeQuestionContainer.querySelectorAll('select')
+        selects.forEach((select) => {
+            select.selectedIndex = 0;
+        })
+
+        const textarea = overlayChangeQuestionContainer.querySelector('textarea')
+        if (textarea) textarea.value = ''
     })
 }
 

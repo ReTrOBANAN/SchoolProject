@@ -57,7 +57,7 @@
                 <form action="/doadd" method="post" class="create-form">
                     <div class="create-form-text">
                         <label for="questionText">Какой у вас вопрос?</label>
-                        <textarea class="form-text-textarea" name="description" id="questionText" minlength="1" required></textarea>
+                        <textarea class="form-text-textarea" name="description" id="questionText" minlength="1" maxlength="10000" required></textarea>
                     </div>
                     <div class="create-form-section">
                         <select class="item-filter-subject input" name="subject">
