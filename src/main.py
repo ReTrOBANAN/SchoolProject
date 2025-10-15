@@ -358,9 +358,31 @@ async def profile(request: Request, username: str):
             ).where(init.User.username == username)
             data = conn.execute(stmt).fetchall()
             account = [data[0].id, data[0].name, username]
+            stmt = select(
+                init.Question.id,
+                init.Question.owner,
+                init.Question.owner_name,
+                init.Question.subject,
+                init.Question.grade,
+                init.Question.description,
+                init.Question.created_at,
+            ).where(init.Question.owner == username).order_by(init.Question.id.desc())
+            data = conn.execute(stmt).fetchall()
+
+            questions = []
+            for row in data:
+                questions.append({
+                    "id": row.id,
+                    "username": row.owner,
+                    "name": row.owner_name,
+                    "subject": row.subject,  
+                    "grade": row.grade,
+                    "text": row.description,
+                    "created_at": row.created_at.isoformat() if row.created_at else None,
+                })
     return templates.TemplateResponse(
         "profile.html", 
-        {"request": request, "account": account}
+        {"request": request, "account": account, "questions": questions}
     )
 
 @app.post("/delete", tags=["Удаление вопроса"])
@@ -462,6 +484,7 @@ async def change_answer(
     owner: str = Form(...),
     id: int = Form(...),
 ):
+    print(new_description, owner, id)
     current_user = function.decrypt(request.cookies.get("username"))
     if current_user == owner:
         if new_description:
@@ -472,6 +495,7 @@ async def change_answer(
                             init.Comment.id == id,
                         )
                     ).values(description=new_description)
+            session.execute(stmt)
             session.commit()
             
             return RedirectResponse("/", status_code=303) 
@@ -483,33 +507,35 @@ async def change_answer(
 @app.post("/report_question", tags=["репорты"])
 async def report_question(
     request: Request,
-    question_id: str = Form(None),
+    questionId: str = Form(None),
     reson: str = Form(None),
 ):
+    print(questionId, reson)
     with Session(init.engine) as conn:
             reporq = init.Reportq(
-                question_id = question_id,
+                question_id = questionId,
                 reson = reson,
             )
             conn.add(reporq)
             conn.commit()  # Важно: commit после добавления
-    return RedirectResponse(f"/question/{question_id}", status_code=303)
+    return RedirectResponse(f"/question/{questionId}", status_code=303)
 
 @app.post("/report_answer", tags=["репорты"])
 async def report_answer(
     request: Request,
-    answer_id: str = Form(None),
-    question_id: str = Form(None),
-    reson: str = Form(None),
+    answerId: str = Form(None),
+    questionId: str = Form(None),
+    complaint_type: str = Form(None),
 ):
+    print(answerId, questionId, complaint_type)
     with Session(init.engine) as conn:
             repora = init.Reporta(
-                answer_id = answer_id,
-                reson = reson,
+                answer_id = answerId,
+                reson = complaint_type,
             )
             conn.add(repora)
             conn.commit()  # Важно: commit после добавления
-    return RedirectResponse(f"/question/{question_id}", status_code=303)
+    return RedirectResponse(f"/question/{questionId}", status_code=303)
         
 
 
