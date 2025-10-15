@@ -73,7 +73,7 @@ function toHTML(answer) {
                         <img src="/static/imgs/delete.svg" alt="">
                         Удалить
                     </button>
-                    <button type="button" class="delete-btn" id="changeAnswerBtn" data-id="${answer.id}" data-owner="${answer.username}">
+                    <button type="button" class="delete-btn" id="changeAnswerBtn" data-id="${answer.id}" data-questionId="${answer.question_id}" data-owner="${answer.username}">
                         <img src="/static/imgs/edit.svg" alt="">
                         Изменить
                     </button>

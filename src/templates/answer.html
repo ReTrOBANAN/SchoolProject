@@ -215,6 +215,7 @@
                         <label for="questionText">Что изменить?</label>
                         <input id="changeAnswerOwner" type="hidden" name="owner" value="">
                         <input id="changeAnswerId" type="hidden" name="id" value="">
+                        <input id="changeQuestionId" type="hidden" name="id" value="">
                         <textarea class="form-text-textarea" name="new_description" id="questionText" minlength="1"></textarea>
                     </div>
                     <button type="submit" class="btn">
@@ -276,12 +277,12 @@
                     <input id="reportAnswerQuestionId" type="hidden" name="questionId" value="">
 
                     <label class="label-report">
-                        <input type="radio" name="complaint_type" class="radio-report" value="spam" required>
+                        <input type="radio" name="complaint_type" class="radio-report" value="Спам" required>
                         Спам или реклама
                     </label>
 
                     <label class="label-report">
-                        <input type="radio" name="complaint_type" class="radio-report" value="offensive">
+                        <input type="radio" name="complaint_type" class="radio-report" value="оскорбление">
                         Оскорбительное поведение
                     </label>
 

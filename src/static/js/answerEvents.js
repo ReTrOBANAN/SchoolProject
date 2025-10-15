@@ -41,8 +41,7 @@ answersList.addEventListener('click', (e) => {
     const reportAnswerBtn = e.target.closest('#reportAnswerBtn')
     const deleteAnswerBtn = e.target.closest('#deleteAnswerBtn')
     const changeAnswerBtn = e.target.closest('#changeAnswerBtn')
-    const finishReadBtn = e.target.closest('#finishReadBtn')
-    console.log(finishReadBtn)
+    // const finishReadBtn = e.target.closest('#finishReadBtn')
 
     
     // Обработка кнопки редактирования
@@ -117,8 +116,10 @@ answersList.addEventListener('click', (e) => {
 
             const changeAnswerOwner = document.getElementById('changeAnswerOwner')
             const changeAnswerId = document.getElementById('changeAnswerId')
+            const changeQuestionId = document.getElementById('changeQuestionId')
             changeAnswerOwner.value = changeAnswerBtn.dataset.owner
             changeAnswerId.value = changeAnswerBtn.dataset.id
+            changeQuestionId.value = changeAnswerBtn.dataset.questionid
 
             closeChangeAnswerContainerBtn.addEventListener('click', () => {
                 overlayChangeAnswerContainer.classList.remove('active')
