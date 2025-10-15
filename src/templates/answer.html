@@ -210,7 +210,7 @@
                 <button class="create-close-btn" id="closeChangeAnswerContainerBtn">
                     <img src="{{ url_for('static', path='imgs/close.svg') }}" alt="">
                 </button>
-                <form action="/change" method="post" class="create-form">
+                <form action="/change_answer" method="post" class="create-form">
                     <div class="create-form-text">
                         <label for="questionText">Что изменить?</label>
                         <input id="changeAnswerOwner" type="hidden" name="owner" value="">
@@ -229,36 +229,33 @@
                 <button class="create-close-btn" id="closeReportQuestionContainerBtn">
                     <img src="{{ url_for('static', path='imgs/close.svg') }}" alt="">
                 </button>
-                <form action="" method="post" class="create-form">
+                <form action="/report_question" method="post" class="create-form">
                     <div class="report-title">Выберите причину жалобы</div>
                     
                     <input id="reportQuestionQuestionId" type="hidden" name="question_id" value="{{ result[5] }}">
 
-
-                    
-
                     <label class="label-report">
-                        <input type="radio" name="complaint_type" class="radio-report" value="spam" required>
+                        <input type="radio" name="reson" class="radio-report" value="spam" required>
                         Спам или реклама
                     </label>
 
                     <label class="label-report">
-                        <input type="radio" name="complaint_type" class="radio-report" value="offensive">
+                        <input type="radio" name="reson" class="radio-report" value="offensive">
                         Оскорбительное поведение
                     </label>
 
                     <label class="label-report">
-                        <input type="radio" name="complaint_type" class="radio-report" value="false_info">
+                        <input type="radio" name="reson" class="radio-report" value="false_info">
                         Ложная информация
                     </label>
 
                     <label class="label-report">
-                        <input type="radio" name="complaint_type" class="radio-report" value="violence">
+                        <input type="radio" name="reson" class="radio-report" value="violence">
                         Пропаганда насилия
                     </label>
 
                     <label class="label-report">
-                        <input type="radio" name="complaint_type" class="radio-report" value="other">
+                        <input type="radio" name="reson" class="radio-report" value="other">
                         Другое
                     </label>
                     <button type="submit" class="btn report-submit-btn">
@@ -273,12 +270,10 @@
                 <button class="create-close-btn" id="closeReportAnswerContainerBtn">
                     <img src="{{ url_for('static', path='imgs/close.svg') }}" alt="">
                 </button>
-                <form action="" method="post" class="create-form">
+                <form action="/report_answer" method="post" class="create-form">
                     <div class="report-title">Выберите причину жалобы</div>
-
-                    <input id="reportAnswerId" type="hidden" name="answer_id" value="">
-                    <input id="reportAnswerQuestionId" type="hidden" name="question_id" value="">
-
+                    <input id="reportAnswerId" type="hidden" name="answerId" value="">
+                    <input id="reportAnswerQuestionId" type="hidden" name="questionId" value="">
 
                     <label class="label-report">
                         <input type="radio" name="complaint_type" class="radio-report" value="spam" required>
