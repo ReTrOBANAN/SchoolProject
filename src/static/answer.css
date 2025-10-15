@@ -29,7 +29,6 @@
 .edit-btn {
     border: none;
     background: transparent;
-    margin-left: auto;
 }
 .delete-btn {
     display: flex;
@@ -40,18 +39,27 @@
     gap: 10px;
     align-items: center;
 }
+.edit-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Выпадающее меню */
 .question-edit-container {
     display: none;
     flex-direction: column;
     position: absolute;
+    top: 100%; /* появление под кнопкой */
     right: 0;
-    top: 30%;
-    margin-top: 10px;
-    /* transform: translate(0%, -50%); */
+    margin-top: 5px;
     background-color: var(--color-windows);
-    border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    min-width: 140px;
 }
+
 .question-edit-container.active {
     display: flex;
 }
@@ -79,6 +87,10 @@
 .answer-btn {
     display: inline;
     margin-right: auto;
+}
+
+.answer-text {
+    white-space: pre-wrap;
 }
 
 /* delete sure */

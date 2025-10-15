@@ -26,6 +26,7 @@ function applyFilters() {
     
     
     if (value) {
+        console.log(questions)
         filtered = filtered.filter((question) => question.text.toLowerCase().includes(value))
     }
     if (subject !== 'все предметы') {
@@ -67,9 +68,7 @@ function toHTML(question) {
             <div class="item-header-grade">${question.grade} класс</div>
             <div class="item-header-time">${timeAgo(question.created_at)}</div>
         </div>
-        <div class="questions-item-body">
-            ${question.text}
-        </div>
+        <div class="questions-item-body">${question.text}</div>
         <div class="questions-item-footer">
             <a class="btn" href="question/${question.id}">Ответить</a>
         </div>
@@ -113,6 +112,22 @@ if (createBtn) {
 
 closeBtn.addEventListener('click', () => {
     overlayContainer.classList.remove('active')
+
+    const selects = overlayContainer.querySelectorAll('select')
+    selects.forEach((select) => {
+        select.selectedIndex = 0;
+    })
+
+    const textarea = overlayContainer.querySelector('textarea')
+    if (textarea) textarea.value = ''
 })
 
 start()
+
+
+window.addEventListener('DOMContentLoaded', () => {
+    const selects = document.querySelectorAll('select')
+    selects.forEach((select) => {
+        select.selectedIndex = 0;
+    })
+});
