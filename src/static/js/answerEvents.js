@@ -194,7 +194,6 @@ if (reportQuestionBtn && overlayReportQuestionContainer) {
 // Поле ответа
 const textarea = document.getElementById('questionText')
 textarea.addEventListener("input", () => {
-    console.log(textarea.style)
-    // this.style.height = "auto"; // Сброс высоты
-    // this.style.height = this.scrollHeight + "px"; // Установка нужной высоты
+    textarea.style.height = "auto"
+    this.style.height = this.scrollHeight + "px";
 });
