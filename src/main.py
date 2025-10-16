@@ -483,6 +483,7 @@ async def change_answer(
     new_description: str = Form(...),
     owner: str = Form(...),
     id: int = Form(...),
+    questionId: int = Form(...),
 ):
     print(new_description, owner, id)
     current_user = function.decrypt(request.cookies.get("username"))
@@ -498,11 +499,11 @@ async def change_answer(
             session.execute(stmt)
             session.commit()
             
-            return RedirectResponse("/", status_code=303) 
+            return RedirectResponse(f"/question/{questionId}", status_code=303) 
         else:
-            return RedirectResponse("/", status_code=303)
+            return RedirectResponse(f"/question/{questionId}", status_code=303)
     else:
-        return RedirectResponse("/", status_code=303)
+        return RedirectResponse(f"/question/{questionId}", status_code=303)
 
 @app.post("/report_question", tags=["репорты"])
 async def report_question(
