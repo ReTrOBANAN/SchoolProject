@@ -1,34 +1,36 @@
-.profile {
+.profile-container {
     display: flex;
+    flex-direction: column;
+    gap: 20px;
     padding-top: 30px;
     padding-bottom: 30px;
 }
 
-.profile-header {
+.profile {
+    display: flex;
+}
+
+.profile-info {
     display: flex;
     flex-direction: column;
+    gap: 5px;
 }
-
-.profile-header-img {
-  width: 100%;
+.profile-image {
+    width: 200px;
     aspect-ratio: 1;
-  border-radius: 50%;       /* круг */
-  object-fit: cover;        /* чтобы картинка не тянулась */
-  border: 2px solid #ddd;   /* тонкая рамка */
-  display: block;
+    border-radius: 50%;
 }
 
-.profile-header-title {
+.profile-name {
     text-align: center;
-    margin-top: 10px;
+    font-weight: 700;
+    font-size: clamp(20px, 1.3vw, 25px);
 }
 
-.profile-header-subtitle {
-    text-align: center;
+.profile-additional {
+    font-size: clamp(20px, 1.3vw, 25px);
 }
 
-.profile-header-leave {
-    display: block;
-    color: var(--color-red);
-    text-align: center;
+.logout-link {
+    color: var(--color-red)
 }

@@ -2,18 +2,52 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Профиль {{account[1]}}</title>
     <link rel="stylesheet" href="{{ url_for('static', path='/main.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', path='/auth.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/questions.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/profile.css') }}">
 </head>
 <body>
-<!--    <div class="login-button-container">-->
-<!--        <a href="/logout" class="login-button">Выйти</a>-->
-<!--    </div>-->
-            <p><strong>id</strong> {{ account[0] }}
+    <div class="header">
+        <header class="header-inner container">
+            <div class="header-logo">
+                Наш логотип
+            </div>
+            <input type="text" id="search" class="input search-input" placeholder="Может вопрос уже задан?">
+            <div class="header-actions">
+                {% if account[2] %}
+                    <button id="create" class="btn header-actions-create">Создать вопрос</button>
+                    <a href="/profile/{{ username }}" class="link">{{ account[1] }}</a>
+                {% else %}
+                    <a href="/login" class="link">Войти</a>
+                {% endif %}
+            </div>
+        </header>
+    </div>
+    <main>
+        <h1 class="visually-hidden">Профиль</h1>
+        <section class="profile-container container">
+            <a href="/" class="arrow-back-answer">
+                <img src="{{ url_for('static', path='imgs/arrow.svg') }}" alt="">
+            </a>
+            <div class="profile">
+                <div class="profile-info">
+                    <!-- <img class="profile-image" src="{{ url_for('static', path='imgs/ava.jpg') }}" alt=""> -->
+                    <div class="profile-name">{{ account[1] }}</div>
+                    <div class="profile-additional">ID: {{ account[0] }}</div>
+                    <div class="profile-additional">Имя аккаунта: {{ account[2] }}</div>
+                    <a class="link logout-link" href="/logout">Выйти из аккаунта</a>
+                </div>
+                <div class="profile-question">
+                </div>
+            </div>
+        </section>
+    </main>
+            <!-- <p><strong>id</strong> {{ account[0] }}
             <p><strong>Имя</strong> {{ account[1] }}
             <p><strong>username</strong> {{ account[2] }}
 <a href="/logout">выйти</a>
-<a href="/">Назад</a>
+<a href="/">Назад</a> -->
 </body>
 </html>
