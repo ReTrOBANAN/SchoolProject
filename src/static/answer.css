@@ -93,6 +93,19 @@
     white-space: pre-wrap;
 }
 
+.short-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.read-more-btn {
+    background: transparent;
+    border: none;
+}
+
 /* delete sure */
 .sure-delete {
     position: fixed;

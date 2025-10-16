@@ -41,7 +41,7 @@ answersList.addEventListener('click', (e) => {
     const reportAnswerBtn = e.target.closest('#reportAnswerBtn')
     const deleteAnswerBtn = e.target.closest('#deleteAnswerBtn')
     const changeAnswerBtn = e.target.closest('#changeAnswerBtn')
-    // const finishReadBtn = e.target.closest('#finishReadBtn')
+    const finishReadBtn = e.target.closest('#finishReadBtn')
 
     
     // Обработка кнопки редактирования
@@ -129,6 +129,20 @@ answersList.addEventListener('click', (e) => {
             })
         }
     }
+
+    if (finishReadBtn) {
+        const container = finishReadBtn.closest('.questions-content-item')
+        const textBlock = container.querySelector('.answer-text')
+
+        if (textBlock.classList.contains('short-text')) {
+            textBlock.classList.remove('short-text')
+            finishReadBtn.textContent = 'Скрыть'
+        }
+        else {
+            textBlock.classList.add('short-text')
+            finishReadBtn.textContent = 'Читать далее'
+        }
+    }
 })
 document.addEventListener('click', (e) => {
     const activeContainers = document.querySelectorAll('.question-edit-container.active');
@@ -192,8 +206,11 @@ if (reportQuestionBtn && overlayReportQuestionContainer) {
 }
 
 // Поле ответа
-const textarea = document.getElementById('questionText')
+const textarea = document.getElementById('answerTextArea')
 textarea.addEventListener("input", () => {
     textarea.style.height = "auto"
-    this.style.height = this.scrollHeight + "px";
+    textarea.style.height = Math.min(textarea.scrollHeight, 1000) + "px";
 });
+
+
+

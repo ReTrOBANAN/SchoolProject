@@ -148,7 +148,7 @@ body {
     border-radius: 10px;
     transition: border-color 0.2s, box-shadow 0.2s;
     color: var(--color-blue-dark);
-    overflow: hidden;
+    overflow: auto;
 }
 
 
@@ -187,9 +187,6 @@ body {
         flex-direction: column;
         align-items: flex-start;
         row-gap: 10px;
-    }
-    .header-logo {
-        margin-left: 10px;
     }
     .header-actions {
         width: 100%;
