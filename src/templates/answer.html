@@ -70,7 +70,7 @@
                     <form action="/addcomment" method="post" class="answer-textarea">
                         <label for="questionText">Хотите ответить?</label>
                         <input type="hidden" value="{{ result[5] }}" name="id">
-                        <textarea class="form-text-textarea" name="comment" id="questionText" required></textarea>
+                        <textarea class="form-text-textarea-answer" name="comment" id="questionText" required oninput="autoResize(this)"></textarea>
                         <button type="submit" class="answer-btn btn">Ответить</button>
                     </form>                  
                 </div>
@@ -174,7 +174,7 @@
                         <input type="hidden" name="description" value='{{ result[4] }}'>
                         <input type="hidden" name="owner" value="{{ result[0] }}">
                         <input type="hidden" name="id" value="{{ result[5] }}">
-                        <textarea class="form-text-textarea" name="new_description" id="questionText" minlength="1" maxlength="10000" required></textarea>
+                        <textarea class="form-text-textarea" name="new_description" id="questionText" minlength="1" maxlength="10000"></textarea>
                     </div>
                     <div class="create-form-section">
                         <select class="item-filter-subject input" name="subject">

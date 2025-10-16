@@ -79,7 +79,8 @@ body {
 .questions-item-body {
     white-space: pre-wrap;
     display: -webkit-box;
-    -webkit-line-clamp: 3;       /* Количество строк */
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -136,6 +137,20 @@ body {
     transition: border-color 0.2s, box-shadow 0.2s;
     color: var(--color-blue-dark);
 }
+
+.form-text-textarea-answer {
+    height: 100%;
+    background: transparent;
+    resize: none;
+    outline: none;
+    padding: 15px;
+    border: var(--border);
+    border-radius: 10px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    color: var(--color-blue-dark);
+    overflow: hidden;
+}
+
 
 
 .form-text-textarea:focus {
