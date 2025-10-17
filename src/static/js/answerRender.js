@@ -60,6 +60,7 @@ function render(answers = []) {
 
 function toHTML(answer) {
     const username = answersList.dataset.username
+    console.log(answer.text)
     if (username === answer.username) {
         if (answer.text.split('\n').length > 3) {
             return `<li class="questions-content-item">
@@ -80,10 +81,13 @@ function toHTML(answer) {
                 </div>
 
                 <div class="questions-item-header">
-                    <div>${answer.name}</div>
+                    <div>${answer.name} (${answer.username})</div>
                     <div>${timeAgo(answer.created_at)}</div>
                 </div>
                 <div class="answer-text short-text">${answer.text}</div>
+                <button class="edit-btn" id="editBtn">
+                    Лайкнуть
+                </button>
 
                 <button id="finishReadBtn" class="link read-more-btn">Читать далее</button>
             </li>
@@ -108,10 +112,14 @@ function toHTML(answer) {
                 </div>
 
                 <div class="questions-item-header">
-                    <div>${answer.name}</div>
+                    <div>${answer.name} (${answer.username})</div>
                     <div>${timeAgo(answer.created_at)}</div>
                 </div>
                 <div class="answer-text short-text">${answer.text}</div>
+                <button class="like-btn">
+                    <img src="/static/imgs/unlike.svg" alt="">
+                    <span class="like-btn-text">5</span>
+                </button>
             </li>
             `
         }
@@ -132,7 +140,7 @@ function toHTML(answer) {
                 </div>
 
                 <div class="questions-item-header">
-                    <div>${answer.name}</div>
+                    <div>${answer.name} (${answer.username})</div>
                     <div>${timeAgo(answer.created_at)}</div>
                 </div>
                 <div class="answer-text short-text">${answer.text}</div>
@@ -156,7 +164,7 @@ function toHTML(answer) {
                 </div>
 
                 <div class="questions-item-header">
-                    <div>${answer.name}</div>
+                    <div>${answer.name} (${answer.username})</div>
                     <div>${timeAgo(answer.created_at)}</div>
                 </div>
                 <div class="answer-text short-text">${answer.text}</div>

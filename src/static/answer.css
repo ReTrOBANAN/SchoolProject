@@ -45,6 +45,17 @@
     justify-content: flex-end;
 }
 
+.like-btn {
+    display: flex;
+    gap: 5px;
+    background: transparent;
+    border: none;
+}
+
+.like-btn-text {
+    color: var(--color-blue-dark);                                                                         
+}
+
 /* Выпадающее меню */
 .question-edit-container {
     display: none;
