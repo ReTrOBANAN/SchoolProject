@@ -46,17 +46,21 @@ class Reportq(Base):
     __tablename__ = "ReportsQ"
     id: Mapped[int] = mapped_column(primary_key=True)
     question_id: Mapped[int]
-    reson: Mapped[str]
-    def __repr__(self) -> str:
-        return f"Question(id={self.id!r}, question_id={self.question_id!r}, reson={self.reson!r})"
+    reason: Mapped[str] = mapped_column(String(500))
+    description: Mapped[str]
     
+    def __repr__(self) -> str:
+        return f"Reportq(id={self.id!r}, question_id={self.question_id!r}, reason={self.reason!r}, description={self.description!r})"
+
 class Reporta(Base):
     __tablename__ = "ReportsA"
     id: Mapped[int] = mapped_column(primary_key=True)
     answer_id: Mapped[int]
-    reson: Mapped[str]
+    reason: Mapped[str] = mapped_column(String(500))
+    description: Mapped[str]
+    
     def __repr__(self) -> str:
-        return f"Question(id={self.id!r}, answer_id={self.answer_id!r}, reson={self.reson!r})"
+        return f"Reporta(id={self.id!r}, answer_id={self.answer_id!r}, reason={self.reason!r}, description={self.description!r})"
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 db_path = os.path.join(current_dir, 'users.db')
