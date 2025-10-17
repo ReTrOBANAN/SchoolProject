@@ -512,13 +512,33 @@ async def report_question(
     reson: str = Form(None),
 ):
     print(questionId, reson)
+    if not request.cookies.get("id"):
+        return RedirectResponse(f"/question/{questionId}", status_code=303)
+    
     with Session(init.engine) as conn:
-            reporq = init.Reportq(
-                question_id = questionId,
-                reson = reson,
+        stmt = select(init.Reportq).where(init.Reportq.question_id == questionId, init.Reportq.reason == reson)
+        data = conn.execute(stmt).first()
+        if data:
+            return RedirectResponse(f"/question/{questionId}", status_code=303)
+        else:
+        # ПРАВИЛЬНО: получаем вопрос из таблицы Question
+            stmt = select(init.Question).where(init.Question.id == questionId)
+            question = conn.execute(stmt).first()
+            
+            if not question:
+                print(f"Вопрос с ID {questionId} не найден")
+                return RedirectResponse(f"/question/{questionId}")
+            
+            # Создаем репорт
+            reportq = init.Reportq(
+                question_id=questionId,  
+                reason=reson,
+                description=question[0].description,  # description из вопроса
             )
-            conn.add(reporq)
-            conn.commit()  # Важно: commit после добавления
+            conn.add(reportq)
+            conn.commit()
+            print(f"Репорт создан для вопроса {questionId}")
+    
     return RedirectResponse(f"/question/{questionId}", status_code=303)
 
 @app.post("/report_answer", tags=["репорты"])
@@ -528,17 +548,156 @@ async def report_answer(
     questionId: str = Form(None),
     complaint_type: str = Form(None),
 ):
-    print(answerId, questionId, complaint_type)
+    print(questionId, complaint_type)
+    if not request.cookies.get("id"):
+        return RedirectResponse(f"/question/{questionId}", status_code=303)
+    
     with Session(init.engine) as conn:
-            repora = init.Reporta(
-                answer_id = answerId,
-                reson = complaint_type,
+        stmt = select(init.Reporta).where(init.Reporta.answer_id == answerId, init.Reporta.reason == complaint_type)
+        data = conn.execute(stmt).first()
+        if data:
+            return RedirectResponse(f"/question/{questionId}", status_code=303)
+        else:
+        # ПРАВИЛЬНО: получаем вопрос из таблицы Question
+            stmt = select(init.Comment).where(init.Comment.id == answerId)
+            question = conn.execute(stmt).first()
+            
+            if not question:
+                print(f"Вопрос с ID {questionId} не найден")
+                return RedirectResponse(f"/question/{questionId}")
+            
+            # Создаем репорт
+            reportq = init.Reporta(
+                answer_id=answerId,  
+                reason=complaint_type,
+                description=question[0].description,  # description из вопроса
             )
-            conn.add(repora)
-            conn.commit()  # Важно: commit после добавления
+            conn.add(reportq)
+            conn.commit()
+            print(f"Репорт создан для otveta {answerId}")
+    
     return RedirectResponse(f"/question/{questionId}", status_code=303)
-        
 
+@app.get("/admin/panel", tags=["Админ панель"])
+async def adminpanel(
+    request: Request,
+):
+    if request.cookies.get("id") != "1":
+       return RedirectResponse("/", status_code=303)
+    
+    with Session(init.engine) as conn:
+        # Получаем все жалобы на вопросы
+        stmt = select(init.Reportq)
+        data = conn.scalars(stmt).all()
+        questions = []
+        for row in data:
+            questions.append({
+                "id": row.id,
+                "qid": row.question_id,
+                "reson": row.reason,
+                "text": row.description,
+            })
+        
+        # Получаем все жалобы на ответы
+        stmt = select(init.Reporta)
+        data = conn.scalars(stmt).all()
+        answers = []
+        for row in data:
+            answers.append({
+                "id": row.id,
+                "aid": row.answer_id,
+                "reson": row.reason,
+                "text": row.description,
+            })
+    return templates.TemplateResponse("admin_reports.html", {"request":request, "questions":questions, "answers":answers})
+
+@app.post("/admin/deletequestion")
+async def deletequestion(
+    request: Request,
+    id: str = Form(None),
+):
+    if request.cookies.get("id") == "1":
+        id = int(id)
+        print(type(id))
+        with Session(init.engine) as session:
+                stmt = sql_delete(init.Question).where(
+                    and_(
+                        init.Question.id == id, 
+                    )
+                )
+                session.execute(stmt)
+                stmt = sql_delete(init.Reportq).where(
+                    and_(
+                        init.Reportq.question_id == id,
+                    )
+                )
+                session.execute(stmt)
+                stmt = sql_delete(init.Comment).where(
+                    and_(
+                        init.Comment.question_id == id,
+                    )
+                )
+                session.execute(stmt)
+                session.commit() 
+    return RedirectResponse("/admin/panel", status_code=303)
+
+@app.post("/admin/deleteanswer")
+async def deletequestion(
+    request: Request,
+    id: str = Form(None),
+):
+    if request.cookies.get("id") == "1":
+        id = int(id)
+        print(type(id))
+        with Session(init.engine) as session:
+            stmt = sql_delete(init.Comment).where(
+                    and_(
+                        init.Comment.id == id, 
+                    )
+                )
+            session.execute(stmt)
+            stmt = sql_delete(init.Reporta).where(
+                    and_(
+                        init.Reporta.answer_id == id, 
+                    )
+                )
+            session.execute(stmt)
+            session.commit()
+    return RedirectResponse("/admin/panel", status_code=303)
+
+@app.post("/admin/resolvequestion")
+async def resolvequestion(
+    request: Request,
+    id: str = Form(...)
+):
+    if request.cookies.get("id") == "1":
+        id = int(id)
+        print(type(id))
+        with Session(init.engine) as session:
+            stmt = sql_delete(init.Reportq).where(
+                    and_(
+                        init.Reportq.question_id == id, 
+                    )
+                )
+            session.execute(stmt)
+    return RedirectResponse("/admin/panel", status_code=303)
+
+@app.post("/admin/resolveanswer")
+async def resolveanswer(
+    request: Request,
+    id: str = Form(...)
+):
+    if request.cookies.get("id") == "1":
+        id = int(id)
+        print(type(id))
+        with Session(init.engine) as session:
+            stmt = sql_delete(init.Reporta).where(
+                    and_(
+                        init.Reporta.answer_id == id, 
+                    )
+                )
+            session.execute(stmt)
+        return RedirectResponse("/admin/panel", status_code=303)
 
 if __name__ == "__main__":
     init.Base.metadata.create_all(init.engine)
