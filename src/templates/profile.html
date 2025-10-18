@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', path='/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='/questions.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='/profile.css') }}">
+    <script src="{{ url_for('static', path='js/profile.js') }}" defer></script>
 </head>
 <body>
     <div class="header">
@@ -33,13 +34,12 @@
             </a>
             <div class="profile">
                 <div class="profile-info">
-                    <!-- <img class="profile-image" src="{{ url_for('static', path='imgs/ava.jpg') }}" alt=""> -->
-                    <div class="profile-name">{{ account[1] }}</div>
+                    <div class="profile-name">{{ account[1] }} ({{ account[2] }})</div>
                     <div class="profile-additional">ID: {{ account[0] }}</div>
-                    <div class="profile-additional">Имя аккаунта: {{ account[2] }}</div>
                     <a class="link logout-link" href="/logout">Выйти из аккаунта</a>
                 </div>
-                <div class="profile-question">
+                <div class="profile-question" id="profileQuestionsContainer" data-username="{{ account[2] }}">
+                    {{ questions }}
                 </div>
             </div>
         </section>

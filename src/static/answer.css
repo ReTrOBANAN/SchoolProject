@@ -45,6 +45,17 @@
     justify-content: flex-end;
 }
 
+.like-btn {
+    display: flex;
+    gap: 5px;
+    background: transparent;
+    border: none;
+}
+
+.like-btn-text {
+    color: var(--color-blue-dark);                                                                         
+}
+
 /* Выпадающее меню */
 .question-edit-container {
     display: none;
@@ -91,6 +102,19 @@
 
 .answer-text {
     white-space: pre-wrap;
+}
+
+.short-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.read-more-btn {
+    background: transparent;
+    border: none;
 }
 
 /* delete sure */

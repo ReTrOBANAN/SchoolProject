@@ -8,12 +8,17 @@
 
 .profile {
     display: flex;
+    gap: 20px;
 }
 
+
 .profile-info {
+    margin-top: 25px;
     display: flex;
     flex-direction: column;
     gap: 5px;
+    width: 25%;
+    flex: 1;
 }
 .profile-image {
     width: 200px;
@@ -22,15 +27,27 @@
 }
 
 .profile-name {
-    text-align: center;
     font-weight: 700;
-    font-size: clamp(20px, 1.3vw, 25px);
+    font-size: clamp(18px, 1.3vw, 25px);
 }
 
 .profile-additional {
-    font-size: clamp(20px, 1.3vw, 25px);
+    font-size: clamp(18px, 1.3vw, 25px);
 }
 
 .logout-link {
     color: var(--color-red)
 }
+
+
+.profile-question {
+    width: 75%;
+}
+
+/* @media (max-width: 767px) {
+    .profile-info {
+        min-width: 100px;
+    }
+} */
+
+

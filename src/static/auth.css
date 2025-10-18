@@ -29,6 +29,7 @@ body {
 
 .auth-title {
   text-align: center;
+  overflow: hidden;
   font-size: clamp(28px, 5vw, 32px);
 }
 

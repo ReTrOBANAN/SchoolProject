@@ -60,58 +60,118 @@ function render(answers = []) {
 
 function toHTML(answer) {
     const username = answersList.dataset.username
-    console.log(answer)
+    console.log(answer.text)
     if (username === answer.username) {
-        console.log(answer)
-        return `<li class="questions-content-item">
-            <div class="edit-wrapper">
-                <button class="edit-btn" id="editBtn">
-                    <img src="/static/imgs/more.svg" alt="">
-                </button>
-                <div class="question-edit-container" id="editContainer">
-                    <button type="button" class="delete-btn" id="deleteAnswerBtn" data-id="${answer.id}" data-owner="${answer.username}" data-questionId="${answer.question_id}">
-                        <img src="/static/imgs/delete.svg" alt="">
-                        Удалить
+        if (answer.text.split('\n').length > 3) {
+            return `<li class="questions-content-item">
+                <div class="edit-wrapper">
+                    <button class="edit-btn" id="editBtn">
+                        <img src="/static/imgs/more.svg" alt="">
                     </button>
-                    <button type="button" class="delete-btn" id="changeAnswerBtn" data-id="${answer.id}" data-questionId="${answer.question_id}" data-owner="${answer.username}">
-                        <img src="/static/imgs/edit.svg" alt="">
-                        Изменить
-                    </button>
+                    <div class="question-edit-container" id="editContainer">
+                        <button type="button" class="delete-btn" id="deleteAnswerBtn" data-id="${answer.id}" data-owner="${answer.username}" data-questionId="${answer.question_id}">
+                            <img src="/static/imgs/delete.svg" alt="">
+                            Удалить
+                        </button>
+                        <button type="button" class="delete-btn" id="changeAnswerBtn" data-id="${answer.id}" data-questionId="${answer.question_id}" data-owner="${answer.username}">
+                            <img src="/static/imgs/edit.svg" alt="">
+                            Изменить
+                        </button>
+                    </div>
                 </div>
-            </div>
 
-            <div class="questions-item-header">
-                <div>${answer.name}</div>
-                <div>${timeAgo(answer.created_at)}</div>
-            </div>
-            <div class="answer-text">${answer.text}</div>
-        </li>
-        `
+                <div class="questions-item-header">
+                    <div>${answer.name} (${answer.username})</div>
+                    <div>${timeAgo(answer.created_at)}</div>
+                </div>
+                <div class="answer-text short-text">${answer.text}</div>
+                <button class="edit-btn" id="editBtn">
+                    Лайкнуть
+                </button>
+
+                <button id="finishReadBtn" class="link read-more-btn">Читать далее</button>
+            </li>
+            `
+        }
+        else {
+            return `<li class="questions-content-item">
+                <div class="edit-wrapper">
+                    <button class="edit-btn" id="editBtn">
+                        <img src="/static/imgs/more.svg" alt="">
+                    </button>
+                    <div class="question-edit-container" id="editContainer">
+                        <button type="button" class="delete-btn" id="deleteAnswerBtn" data-id="${answer.id}" data-owner="${answer.username}" data-questionId="${answer.question_id}">
+                            <img src="/static/imgs/delete.svg" alt="">
+                            Удалить
+                        </button>
+                        <button type="button" class="delete-btn" id="changeAnswerBtn" data-id="${answer.id}" data-questionId="${answer.question_id}" data-owner="${answer.username}">
+                            <img src="/static/imgs/edit.svg" alt="">
+                            Изменить
+                        </button>
+                    </div>
+                </div>
+
+                <div class="questions-item-header">
+                    <div>${answer.name} (${answer.username})</div>
+                    <div>${timeAgo(answer.created_at)}</div>
+                </div>
+                <div class="answer-text short-text">${answer.text}</div>
+                <button class="like-btn">
+                    <img src="/static/imgs/unlike.svg" alt="">
+                    <span class="like-btn-text">5</span>
+                </button>
+            </li>
+            `
+        }
     }
     else {
-        return `
-        <li class="questions-content-item">
-            <div class="edit-wrapper">
-                <button class="edit-btn" id="editBtn">
-                    <img src="/static/imgs/more.svg" alt="">
-                </button>
-                <div class="question-edit-container" id="editContainer">
-                    <button type="button" class="delete-btn" id="reportAnswerBtn" data-id="${answer.id}" data-questionId="${answer.question_id}">
-                        <img src="/static/imgs/flag.svg" alt="">
-                        Пожаловаться
+        if (answer.text.split('\n').length > 3) {
+            return `<li class="questions-content-item">
+                <div class="edit-wrapper">
+                    <button class="edit-btn" id="editBtn">
+                        <img src="/static/imgs/more.svg" alt="">
                     </button>
+                    <div class="question-edit-container" id="editContainer">
+                        <button type="button" class="delete-btn" id="reportAnswerBtn" data-id="${answer.id}" data-questionId="${answer.question_id}">
+                            <img src="/static/imgs/flag.svg" alt="">
+                            Пожаловаться
+                        </button>
+                    </div>
                 </div>
-            </div>
 
-            <div class="questions-item-header">
-                <div>${answer.name}</div>
-                <div>${timeAgo(answer.created_at)}</div>
-            </div>
-            <div class="answer-text">${answer.text}</div>
-        </li>`
-    }
+                <div class="questions-item-header">
+                    <div>${answer.name} (${answer.username})</div>
+                    <div>${timeAgo(answer.created_at)}</div>
+                </div>
+                <div class="answer-text short-text">${answer.text}</div>
 
-    
+                <button id="finishReadBtn" class="link read-more-btn">Читать далее</button>
+            </li>
+            `
+        }
+        else {
+            return `<li class="questions-content-item">
+                <div class="edit-wrapper">
+                    <button class="edit-btn" id="editBtn">
+                        <img src="/static/imgs/more.svg" alt="">
+                    </button>
+                    <div class="question-edit-container" id="editContainer">
+                        <button type="button" class="delete-btn" id="reportAnswerBtn" data-id="${answer.id}" data-questionId="${answer.question_id}">
+                            <img src="/static/imgs/flag.svg" alt="">
+                            Пожаловаться
+                        </button>
+                    </div>
+                </div>
+
+                <div class="questions-item-header">
+                    <div>${answer.name} (${answer.username})</div>
+                    <div>${timeAgo(answer.created_at)}</div>
+                </div>
+                <div class="answer-text short-text">${answer.text}</div>
+            </li>
+            `
+        }
+    }   
 }
 
 start()

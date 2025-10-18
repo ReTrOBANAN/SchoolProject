@@ -64,7 +64,7 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    font-size: clamp(14px, 1.22vw, 18px);
+    font-size: 18px;
     font-weight: 700;
 }
 .questions-item-header > div {
@@ -110,7 +110,8 @@ body {
     max-height: 600px;
     border-radius: 10px;
     padding: 45px 15px;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .create-form {
@@ -118,6 +119,7 @@ body {
     flex-direction: column;
     row-gap: 20px;
     height: 100%;
+    overflow-y: auto;
 }
 
 .create-form-text {
@@ -148,7 +150,7 @@ body {
     border-radius: 10px;
     transition: border-color 0.2s, box-shadow 0.2s;
     color: var(--color-blue-dark);
-    overflow: hidden;
+    overflow: auto;
 }
 
 
@@ -187,9 +189,6 @@ body {
         flex-direction: column;
         align-items: flex-start;
         row-gap: 10px;
-    }
-    .header-logo {
-        margin-left: 10px;
     }
     .header-actions {
         width: 100%;
