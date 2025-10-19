@@ -63,7 +63,7 @@ function render(questions = []) {
 function toHTML(question) {
     return `<li class="questions-content-item">
         <div class="questions-item-header">
-            <div class="item-header-name">${question.name} (${question.username})</div>
+            <a href="/profile/${question.username}" class="item-header-name link">${question.name} (${question.username})</a>
             <div class="item-header-subject">${question.subject}</div>
             <div class="item-header-grade">${question.grade} класс</div>
             <div class="item-header-time">${timeAgo(question.created_at)}</div>

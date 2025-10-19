@@ -13,11 +13,20 @@ body {
     padding-top: 15px;
     padding-bottom: 15px;
     column-gap: 40px;
-    flex-wrap: wrap;
+}
+
+.header-top {
+    width: 100%;
 }
 
 .search-input {
-    flex: 1;
+    width: 100%;
+}
+
+.header-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .header-actions {
