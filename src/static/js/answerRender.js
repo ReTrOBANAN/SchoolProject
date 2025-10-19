@@ -81,13 +81,10 @@ function toHTML(answer) {
                 </div>
 
                 <div class="questions-item-header">
-                    <div>${answer.name} (${answer.username})</div>
+                    <a class="link" href="/profile/${answer.username}">${answer.name} (${answer.username})</a>
                     <div>${timeAgo(answer.created_at)}</div>
                 </div>
                 <div class="answer-text short-text">${answer.text}</div>
-                <button class="edit-btn" id="editBtn">
-                    Лайкнуть
-                </button>
 
                 <button id="finishReadBtn" class="link read-more-btn">Читать далее</button>
             </li>
@@ -112,14 +109,10 @@ function toHTML(answer) {
                 </div>
 
                 <div class="questions-item-header">
-                    <div>${answer.name} (${answer.username})</div>
+                    <a class="link" href="/profile/${answer.username}">${answer.name} (${answer.username})</a>
                     <div>${timeAgo(answer.created_at)}</div>
                 </div>
                 <div class="answer-text short-text">${answer.text}</div>
-                <button class="like-btn">
-                    <img src="/static/imgs/unlike.svg" alt="">
-                    <span class="like-btn-text">5</span>
-                </button>
             </li>
             `
         }
@@ -140,7 +133,7 @@ function toHTML(answer) {
                 </div>
 
                 <div class="questions-item-header">
-                    <div>${answer.name} (${answer.username})</div>
+                    <a class="link" href="/profile/${answer.username}">${answer.name} (${answer.username})</a>
                     <div>${timeAgo(answer.created_at)}</div>
                 </div>
                 <div class="answer-text short-text">${answer.text}</div>
@@ -164,7 +157,7 @@ function toHTML(answer) {
                 </div>
 
                 <div class="questions-item-header">
-                    <div>${answer.name} (${answer.username})</div>
+                    <a class="link" href="/profile/${answer.username}">${answer.name} (${answer.username})</a>
                     <div>${timeAgo(answer.created_at)}</div>
                 </div>
                 <div class="answer-text short-text">${answer.text}</div>
