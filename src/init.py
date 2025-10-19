@@ -28,6 +28,7 @@ class Question(Base):
     grade: Mapped[int]
     subject: Mapped[str] = mapped_column(String(20))
     description: Mapped[str] = mapped_column(String(1000))
+    like: Mapped[int] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     def __repr__(self) -> str:
         return f"Question(id={self.id!r}, owner={self.owner!r}, owner_name={self.owner_name!r}, subject={self.subject!r}, title={self.title!r}, description={self.description!r}, created={self.created_at!r})"
@@ -61,6 +62,14 @@ class Reporta(Base):
     
     def __repr__(self) -> str:
         return f"Reporta(id={self.id!r}, answer_id={self.answer_id!r}, reason={self.reason!r}, description={self.description!r})"
+
+class Like(Base):
+    __tablename__ = "Like_question"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    question_id: Mapped[int]
+    who: Mapped[str]
+    def __repr__(self) -> str:
+        return f"Like(id={self.id!r}, question_id={self.question_id!r}, who={self.who!r}"
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 db_path = os.path.join(current_dir, 'users.db')

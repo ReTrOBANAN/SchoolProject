@@ -33,7 +33,7 @@ levels = [
     {"title": "Активный участник", "min_points": 50, "background": "#FF5B5B"},
     {"title": "Эксперт", "min_points": 100, "background": "#9C9DFF"},
     {"title": "Мастер", "min_points": 200, "background": "#EF89FF"},
-    {"title": "Гуру", "min_points": 500, "background": "#FF4BE7"},
+    {"title": "Админ", "min_points": 500, "background": "#FF4BE7"},
 ]
 
 @app.get("/logout", tags="Выход")
@@ -176,6 +176,23 @@ async def get_answers():
             })
         return JSONResponse(content=questions)
 
+@app.get("/api/like", tags=["API"])
+async def get_like():
+    with Session(init.engine) as conn:
+        stmt = select(
+            init.Like.question_id,
+            init.Like.who,
+        ).order_by(init.Question.id.desc())
+        data = conn.execute(stmt).fetchall()
+
+        like = []
+        for row in data:
+            like.append({
+                "question_id": row.question_id,
+                "who": row.who,
+            })
+        return JSONResponse(content=like)
+
 @app.get("/api/questions", tags=["API"])
 async def get_questions():
     with Session(init.engine) as conn:
@@ -187,6 +204,7 @@ async def get_questions():
             init.Question.grade,
             init.Question.description,
             init.Question.created_at,
+            init.Question.like,
         ).order_by(init.Question.id.desc())
         data = conn.execute(stmt).fetchall()
 
@@ -200,6 +218,7 @@ async def get_questions():
                 "grade": row.grade,
                 "text": row.description,
                 "created_at": row.created_at.isoformat() if row.created_at else None,
+                "like": row.like,
             })
         return JSONResponse(content=questions)
     
@@ -331,23 +350,29 @@ async def question_page(request: Request, note_id: int):
             "comments": comments,
         })
 
-    
-@app.post("/addcomment", tags="Добавить комментарий")
+@app.post("/addcomment", tags=["Добавить комментарий"])
 async def addcomment(
     request: Request,
     comment: str = Form(...),
     id: int = Form(...),
 ):
-    print(comment, id)
+    # Убираем пробелы и переводы строк
+    clean_comment = comment.strip()
+
+    # Если комментарий пустой после очистки — не добавляем
+    if not clean_comment:
+        return RedirectResponse(url=f'/question/{id}', status_code=303)
+
     with Session(init.engine) as conn:
         comments = init.Comment(
             question_id=id,
             owner=function.decrypt(request.cookies.get("username")),
-            description=comment,
+            description=clean_comment,
         )
         conn.add(comments)
         conn.commit()
-        return RedirectResponse(url=f'/question/{id}', status_code=303)
+
+    return RedirectResponse(url=f'/question/{id}', status_code=303)
     
 @app.get("/profile/{username}", tags=["Профиль"])
 async def profile(request: Request, username: str):
@@ -355,9 +380,11 @@ async def profile(request: Request, username: str):
             stmt = select(
                 init.User.id,
                 init.User.name,
+                init.User.title,
+                init.User.background,
             ).where(init.User.username == username)
             data = conn.execute(stmt).fetchall()
-            account = [data[0].id, data[0].name, username]
+            account = [data[0].id, data[0].name, username, data[0].title, data[0].background]
             stmt = select(
                 init.Question.id,
                 init.Question.owner,
@@ -382,7 +409,7 @@ async def profile(request: Request, username: str):
                 })
     return templates.TemplateResponse(
         "profile.html", 
-        {"request": request, "account": account, "questions": questions}
+        {"request": request, "account": account, "questions": questions, "name": function.decrypt(request.cookies.get("name")), "username": function.decrypt(request.cookies.get("username"))}
     )
 
 @app.post("/delete", tags=["Удаление вопроса"])
@@ -513,7 +540,7 @@ async def report_question(
 ):
     print(questionId, reson)
     if not request.cookies.get("id"):
-        return RedirectResponse(f"/question/{questionId}", status_code=303)
+        return RedirectResponse(f"/login", status_code=303)
     
     with Session(init.engine) as conn:
         stmt = select(init.Reportq).where(init.Reportq.question_id == questionId, init.Reportq.reason == reson)
@@ -609,7 +636,8 @@ async def adminpanel(
                 "reson": row.reason,
                 "text": row.description,
             })
-    return templates.TemplateResponse("admin_reports.html", {"request":request, "questions":questions, "answers":answers})
+    return templates.TemplateResponse("admin_reports.html", {"request":request, "questions":questions, "answers":answers, "username":function.decrypt(request.cookies.get("username")), "name":function.decrypt(request.cookies.get("name"))})
+
 
 @app.post("/admin/deletequestion")
 async def deletequestion(
@@ -680,6 +708,7 @@ async def resolvequestion(
                     )
                 )
             session.execute(stmt)
+            session.commit()
     return RedirectResponse("/admin/panel", status_code=303)
 
 @app.post("/admin/resolveanswer")
@@ -697,8 +726,43 @@ async def resolveanswer(
                     )
                 )
             session.execute(stmt)
+            session.commit()
         return RedirectResponse("/admin/panel", status_code=303)
+    
+#@app.post("/like_question", tags=["Лайки"])
+#async def like_questions(
+#    request: Request,
+#    question_id: str = Form(...), 
+#):
+#    if request.cookies.get("id"):
+#        current_user = function.decrypt(request.cookies.get("username"))
+#        with Session(init.engine) as conn:
+#            stmt = select(init.Like).where(init.Like.question_id == question_id, init.Like.who == current_user)
+#            data = conn.scalars(stmt).all()
+#            print(data)
+#            if data:
+#                return RedirectResponse(f"/question/{question_id}")
+#            like = init.Like(
+#                question_id=question_id,
+#                who=current_user,
+#            )
+#            conn.add(like)
+#            stmt = select(init.Question.like).where(init.Question.id == question_id)
+#            data = conn.scalars(stmt).all()
+#            if data[0] == None:
+#               new = 1
+#            else:
+#                new = data[0] + 1
+#            stmt = update(init.Question).where(
+#                and_(
+#                    init.Question.id == question_id,
+#                )
+#                ).values(like=new)
+#            conn.execute(stmt)
+#            conn.commit()
+#    return RedirectResponse(f"/question/{question_id}", status_code=303)
 
+    
 if __name__ == "__main__":
     init.Base.metadata.create_all(init.engine)
     uvicorn.run("main:app", reload=True)
