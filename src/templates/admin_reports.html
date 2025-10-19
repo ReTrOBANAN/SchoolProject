@@ -3,49 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', path='/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/questions.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/answer.css') }}">
+
     <title>Админ панель - Жалобы</title>
 </head>
 <body>
-    <h1>Жалобы на вопросы</h1>
-    {% if questions %}
-        {% for question in questions %}
-            <div>
-                <p><strong>ID:</strong> {{ question.qid }}</p>
-                <p><strong>Причина:</strong> {{ question.reson }}</p>
-                <p><strong>Описание:</strong> {{ question.text }}</p>
-                <form method="post" action="/admin/deletequestion">
-                    <input type="hidden" name="id" value="{{ question.qid }}">
-                    <button type="submit">Удалить</button>
-                </form>
-                <form method="post" action="/admin/resolvequestion">
-                    <input type="hidden" name="id" value="{{ question.qid }}">
-                    <button type="submit">Одобрить</button>
-                </form>
+    <div class="header">
+        <header class="header-inner container">
+            <div class="header-logo">
+                Наш логотип
             </div>
-        {% endfor %}
-    {% else %}
-        <p>Жалоб на вопросы нет.</p>
-    {% endif %}
-
-    <h1>Жалобы на ответы</h1>
-    {% if answers %}
-        {% for answer in answers %}
-            <div>
-                <p><strong>ID:</strong> {{ answer.id }}</p>
-                <p><strong>Причина:</strong> {{ answer.reson }}</p>
-                <p><strong>Описание:</strong> {{ answer.text }}</p>
-                <form method="post" action="/admin/deleteanswer">
-                    <input type="hidden" name="id" value="{{ answer.aid }}">
-                    <button type="submit">Удалить</button>
-                </form>
-                <form method="post" action="/admin/resolveanswer">
-                    <input type="hidden" name="id" value="{{ answer.aid }}">
-                    <button type="submit">Одобрить</button>
-                </form>
+            <input type="text" id="search" class="input search-input" placeholder="Может вопрос уже задан?">
+            <div class="header-actions">
+                
             </div>
-        {% endfor %}
-    {% else %}
-        <p>Жалоб на ответы нет.</p>
-    {% endif %}
+        </header>
+    </div>
+    <main>
+        <section class="questions container">
+            <h1 class="answers-title">Жалобы на вопросы</h1>
+            <ul class="questions-content-list">
+            {% if questions %}
+                {% for question in questions %}
+                <li class="questions-content-item">
+                    <div class="questions-item-header">
+                        <div class="item-header-name">ID: {{ question.qid }}</div>
+                        <div class="item-header-subject">{{ question.reson }}</div>
+                    </div>
+                    <div class="questions-item-body">{{ question.text }}</div>
+                    <div class="sure-delete-btns">
+                        <form method="post" action="/admin/resolvequestion">
+                            <input type="hidden" name="id" value="{{ question.qid }}">
+                            <button type="submit" class="btn">Одобрить</button>
+                        </form>
+                        <form method="post" action="/admin/deletequestion">
+                            <input type="hidden" name="id" value="{{ question.qid }}">
+                            <button type="submit" class="btn delete-sure">Удалить</button>
+                        </form>
+                    </div>
+                </li>
+                {% endfor %}
+                {% else %}
+                    <p style="text-align: center;">Жалоб на вопросы нет.</p>
+                {% endif %}
+            </ul>
+        </section>
+        <section class="questions container">
+            <h1 class="answers-title">Жалобы на ответы</h1>            
+            <ul class="questions-content-list">
+            {% if answers %}
+                {% for answer in answers %}
+                <li class="questions-content-item">
+                    <div class="questions-item-header">
+                        <div class="item-header-name">ID: {{ answer.id }}</div>
+                        <div class="item-header-subject">{{ answer.reson }}</div>
+                    </div>
+                    <div class="questions-item-body">{{ answer.text }}</div>
+                    <div class="sure-delete-btns">
+                        <form method="post" action="/admin/resolveanswer">
+                            <input type="hidden" name="id" value="{{ answer.aid }}">
+                            <button type="submit" class="btn">Одобрить</button>
+                        </form>
+                        <form method="post" action="/admin/deleteanswer">
+                            <input type="hidden" name="id" value="{{ answer.aid }}">
+                            <button type="submit" class="btn delete-sure">Удалить</button>
+                        </form>
+                    </div>
+                </li>
+                {% endfor %}
+                {% else %}
+                    <p style="text-align: center;">Жалоб на ответы нет.</p>
+                {% endif %}
+            </ul>
+        </section>
+    </main>
 </body>
 </html>

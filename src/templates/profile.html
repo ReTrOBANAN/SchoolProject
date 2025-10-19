@@ -19,7 +19,7 @@
             <div class="header-actions">
                 {% if account[2] %}
                     <button id="create" class="btn header-actions-create">Создать вопрос</button>
-                    <a href="/profile/{{ username }}" class="link">{{ account[1] }}</a>
+                    <a href="/profile/{{ account[2] }}" class="link">{{ account[1] }}</a>
                 {% else %}
                     <a href="/login" class="link">Войти</a>
                 {% endif %}
@@ -44,10 +44,5 @@
             </div>
         </section>
     </main>
-            <!-- <p><strong>id</strong> {{ account[0] }}
-            <p><strong>Имя</strong> {{ account[1] }}
-            <p><strong>username</strong> {{ account[2] }}
-<a href="/logout">выйти</a>
-<a href="/">Назад</a> -->
 </body>
 </html>
