@@ -33,7 +33,7 @@ levels = [
     {"title": "Активный участник", "min_points": 50, "background": "#FF5B5B"},
     {"title": "Эксперт", "min_points": 100, "background": "#9C9DFF"},
     {"title": "Мастер", "min_points": 200, "background": "#EF89FF"},
-    {"title": "Гуру", "min_points": 500, "background": "#FF4BE7"},
+    {"title": "Админ", "min_points": 500, "background": "#FF4BE7"},
 ]
 
 @app.get("/logout", tags="Выход")
@@ -380,9 +380,11 @@ async def profile(request: Request, username: str):
             stmt = select(
                 init.User.id,
                 init.User.name,
+                init.User.title,
+                init.User.background,
             ).where(init.User.username == username)
             data = conn.execute(stmt).fetchall()
-            account = [data[0].id, data[0].name, username]
+            account = [data[0].id, data[0].name, username, data[0].title, data[0].background]
             stmt = select(
                 init.Question.id,
                 init.Question.owner,
@@ -407,7 +409,7 @@ async def profile(request: Request, username: str):
                 })
     return templates.TemplateResponse(
         "profile.html", 
-        {"request": request, "account": account, "questions": questions}
+        {"request": request, "account": account, "questions": questions, "name": function.decrypt(request.cookies.get("name")), "username": function.decrypt(request.cookies.get("username"))}
     )
 
 @app.post("/delete", tags=["Удаление вопроса"])
