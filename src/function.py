@@ -11,35 +11,44 @@ import init
 
 levels = [
     {"title": "Новичок", "min_points": 0, "background": "#DBDBDB"},
-    {"title": "Любознательный", "min_points": 25, "background": "#FFFFFF"},
-    {"title": "Активный участник", "min_points": 50, "background": "#FF5B5B"},
-    {"title": "Эксперт", "min_points": 100, "background": "#9C9DFF"},
+    {"title": "Любознательный", "min_points": 1, "background": "#FFFFFF"},
+    {"title": "Активный участник", "min_points": 2, "background": "#FF5B5B"},
+    {"title": "Эксперт", "min_points": 20, "background": "#9C9DFF"},
     {"title": "Мастер", "min_points": 200, "background": "#EF89FF"},
-    {"title": "Гуру", "min_points": 500, "background": "#FF4BE7"},
+    {"title": "Админ", "min_points": 500, "background": "#FF4BE7"},
 ]
 
 def upgrade(id):
     with Session(init.engine) as session:
-        stmt = select(init.User).where(init.User.id == id)
-        user = session.execute(stmt).scalar_one()
+        user = session.execute(select(init.User).where(init.User.id == id)).scalar_one()
         if user:
-            new_level = user.min_points + 1
-            stmt = update(init.User).where(init.User.id == id).values(min_points=new_level)
-            session.execute(stmt)
+            new_points = user.min_points + 1
+            session.execute(
+                update(init.User).where(init.User.id == id).values(min_points=new_points)
+            )
         session.commit()
+
 
 def upgrade_title(id):
     with Session(init.engine) as session:
-        stmt = select(init.User).where(init.User.id == id)
-        user = session.execute(stmt).scalar_one()
-        for i in levels:
-            if i["min_points"] >= user[0].min_points and user[0].title != i["title"]:
-                new_title = i["title"]
-                new_background = i["background"]
-                break
-        if new_title:
-            stmt = update(init.User).where(init.User.id == id).values(title=new_title, background=new_background)
-            session.execute(stmt)
+        user = session.execute(select(init.User).where(init.User.id == id)).scalar_one()
+
+        new_title = None
+        new_background = None
+
+        for level in levels:
+            if user.min_points >= level["min_points"]:
+                new_title = level["title"]
+                new_background = level["background"]
+
+        # если звание изменилось — обновляем
+        if new_title and user.title != new_title:
+            session.execute(
+                update(init.User)
+                .where(init.User.id == id)
+                .values(title=new_title, background=new_background)
+            )
+            session.commit()
 
 # кодирование пароля
 def encrypt(text):

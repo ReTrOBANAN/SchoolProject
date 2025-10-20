@@ -29,9 +29,9 @@ templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
 levels = [
     {"title": "Новичок", "min_points": 0, "background": "#DBDBDB"},
-    {"title": "Любознательный", "min_points": 25, "background": "#FFFFFF"},
-    {"title": "Активный участник", "min_points": 50, "background": "#FF5B5B"},
-    {"title": "Эксперт", "min_points": 100, "background": "#9C9DFF"},
+    {"title": "Любознательный", "min_points": 1, "background": "#FFFFFF"},
+    {"title": "Активный участник", "min_points": 2, "background": "#FF5B5B"},
+    {"title": "Эксперт", "min_points": 20, "background": "#9C9DFF"},
     {"title": "Мастер", "min_points": 200, "background": "#EF89FF"},
     {"title": "Админ", "min_points": 500, "background": "#FF4BE7"},
 ]
@@ -223,26 +223,30 @@ async def get_questions():
         return JSONResponse(content=questions)
     
 @app.get("/api/users", tags=["API"])
-async def get_questions():
+async def get_users():
     with Session(init.engine) as conn:
         stmt = select(
-            init.User.min_points,
+            init.User.id,
             init.User.username,
+            init.User.name,
+            init.User.min_points,
+            init.User.title,
+            init.User.background
         )
         data = conn.execute(stmt).fetchall()
 
-        questions = []
+        users = []
         for row in data:
-            stmt = select(init.User.name).where(init.User.username == row.owner)
-            data = conn.execute(stmt).fetchall()
-            questions.append({
+            users.append({
                 "id": row.id,
-                "question_id": row.question_id,
-                "name": data[0].name,
-                "username": row.owner,
-                "text": row.description,
+                "username": row.username,
+                "name": row.name,
+                "min_points": row.min_points,
+                "title": row.title,
+                "background": row.background
             })
-        return JSONResponse(content=questions)
+        return JSONResponse(content=users)
+
 
 @app.get("/", tags="Главная")
 async def main(request: Request):
@@ -407,10 +411,15 @@ async def profile(request: Request, username: str):
                     "text": row.description,
                     "created_at": row.created_at.isoformat() if row.created_at else None,
                 })
+    if request.cookies.get('id'):
+        return templates.TemplateResponse(
+            "profile.html", 
+            {"request": request, "account": account, "questions": questions, "name": function.decrypt(request.cookies.get("name")), "username": function.decrypt(request.cookies.get("username"))}
+        )
     return templates.TemplateResponse(
-        "profile.html", 
-        {"request": request, "account": account, "questions": questions, "name": function.decrypt(request.cookies.get("name")), "username": function.decrypt(request.cookies.get("username"))}
-    )
+    "profile.html", 
+    {"request": request, "account": account, "questions": questions})
+
 
 @app.post("/delete", tags=["Удаление вопроса"])
 async def delete_question(
@@ -606,38 +615,55 @@ async def report_answer(
     return RedirectResponse(f"/question/{questionId}", status_code=303)
 
 @app.get("/admin/panel", tags=["Админ панель"])
-async def adminpanel(
-    request: Request,
-):
-    if request.cookies.get("id") != "1":
-       return RedirectResponse("/", status_code=303)
-    
+async def adminpanel(request: Request):
+    user_id = request.cookies.get("id")
+    username = function.decrypt(request.cookies.get("username"))
+
     with Session(init.engine) as conn:
+        # Получаем пользователя
+        stmt = select(init.User).where(init.User.id == int(user_id))
+        user = conn.scalar(stmt)
+
+        # Проверяем права доступа
+        if not user or (user.id != 1 and not user.is_admin):
+            return RedirectResponse("/", status_code=303)
+
         # Получаем все жалобы на вопросы
         stmt = select(init.Reportq)
-        data = conn.scalars(stmt).all()
-        questions = []
-        for row in data:
-            questions.append({
-                "id": row.id,
-                "qid": row.question_id,
-                "reson": row.reason,
-                "text": row.description,
-            })
-        
+        report_questions = conn.scalars(stmt).all()
+        questions = [
+            {
+                "id": r.id,
+                "qid": r.question_id,
+                "reson": r.reason,
+                "text": r.description,
+            }
+            for r in report_questions
+        ]
+
         # Получаем все жалобы на ответы
         stmt = select(init.Reporta)
-        data = conn.scalars(stmt).all()
-        answers = []
-        for row in data:
-            answers.append({
-                "id": row.id,
-                "aid": row.answer_id,
-                "reson": row.reason,
-                "text": row.description,
-            })
-    return templates.TemplateResponse("admin_reports.html", {"request":request, "questions":questions, "answers":answers, "username":function.decrypt(request.cookies.get("username")), "name":function.decrypt(request.cookies.get("name"))})
+        report_answers = conn.scalars(stmt).all()
+        answers = [
+            {
+                "id": r.id,
+                "aid": r.answer_id,
+                "reson": r.reason,
+                "text": r.description,
+            }
+            for r in report_answers
+        ]
 
+        return templates.TemplateResponse(
+            "admin_reports.html",
+            {
+                "request": request,
+                "questions": questions,
+                "answers": answers,
+                "username": username,
+                "name": function.decrypt(request.cookies.get("name")),
+            },
+        )
 
 @app.post("/admin/deletequestion")
 async def deletequestion(
@@ -762,7 +788,51 @@ async def resolveanswer(
 #            conn.commit()
 #    return RedirectResponse(f"/question/{question_id}", status_code=303)
 
-    
+@app.post("/admin/add", tags=["Admin"])
+async def add_admin(
+    request: Request,
+    target_username: str = Form(...),
+):
+    # Получаем username из куков
+    actor_username_encrypted = request.cookies.get("username")
+    if not actor_username_encrypted:
+        return JSONResponse(content={"error": "Неавторизован"}, status_code=401)
+
+    actor_username = function.decrypt(actor_username_encrypted)
+
+    with Session(init.engine) as session:
+        # Ищем актёра (того, кто пытается добавить админа)
+        actor = session.execute(
+            select(init.User).where(init.User.username == actor_username)
+        ).scalar_one_or_none()
+
+        # Ищем цель (кого хотим сделать админом)
+        target = session.execute(
+            select(init.User).where(init.User.username == target_username)
+        ).scalar_one_or_none()
+
+        # Проверяем, что оба существуют
+        if not actor or not target:
+            return JSONResponse(
+                content={"error": "Пользователь не найден"}, status_code=404
+            )
+
+        # Проверяем права: либо id == 1, либо is_admin == True
+        if actor.id != 1 and not actor.is_admin:
+            return JSONResponse(
+                content={"error": "Недостаточно прав"}, status_code=403
+            )
+
+        # Делаем пользователя админом
+        session.execute(
+            update(init.User)
+            .where(init.User.username == target_username)
+            .values(is_admin=True)
+        )
+        session.commit()
+
+        return RedirectResponse("/admin/panel", status_code=303)
+
 if __name__ == "__main__":
     init.Base.metadata.create_all(init.engine)
     uvicorn.run("main:app", reload=True)
