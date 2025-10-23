@@ -140,8 +140,8 @@ async def doadd(
             filename = f"{uuid.uuid4()}.{file_extension}"
             
             # Сохраняем файл в папку static/images
-            image_path = f"static/images/{filename}"
-            os.makedirs("static/images", exist_ok=True)
+            image_path = f"./SchoolProject/src/static/images/{filename}"
+            os.makedirs("./SchoolProject/src/static/images", exist_ok=True)
             
             with open(image_path, "wb") as buffer:
                 content = await image.read()
@@ -306,6 +306,15 @@ async def question_page(request: Request, note_id: int):
                 question_data.created_at,
                 question_data.image_path,
             ]
+            stmt = select(
+                init.User.id,
+                init.User.name,
+                init.User.title,
+                init.User.background,
+                init.User.is_admin,
+            ).where(init.User.username == result[1])
+            data = conn.execute(stmt).fetchall()
+            account = [data[0].id, data[0].name, result[1], data[0].title, data[0].background, data[0].is_admin,]
             
         with Session(init.engine) as conn:
             # Получаем комментарии
@@ -322,6 +331,7 @@ async def question_page(request: Request, note_id: int):
         
         return templates.TemplateResponse("answer.html", {
             "username": function.decrypt(request.cookies.get("username")),
+            "account": account,
             "name": function.decrypt(request.cookies.get("name")),
             "request": request,
             "result": result,
