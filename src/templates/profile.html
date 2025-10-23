@@ -39,8 +39,15 @@
                 <div class="profile-info">
                     <div class="profile-name">{{ account[1] }} ({{ account[2] }})</div>
                     <div class="profile-additional">ID: {{ account[0] }}</div>
-                    <!-- <div class="profile-additional" style="color: {{ account[4] }};">Титул: {{ account[3] }}</div> -->
+                    <div class="profile-additional" style="color: {{ account[4] }};">{{ account[3] }}</div>
+
+                    {% if username == account[2] and account[5] %}
+                    <a class="link admin-link" href="/admin/panel">Перейти в админ-панель</a>
+                    {% endif %}
+                    {% if username == account[2] %}
                     <a class="link logout-link" href="/logout">Выйти из аккаунта</a>
+                    {% endif %}
+
                 </div>
                 <div class="profile-question" id="profileQuestionsContainer" data-username="{{ account[2] }}">
                     {{ questions }}

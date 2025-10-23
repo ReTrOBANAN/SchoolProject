@@ -10,12 +10,12 @@ import base64
 import init
 
 levels = [
-    {"title": "Новичок", "min_points": 0, "background": "#DBDBDB"},
-    {"title": "Любознательный", "min_points": 1, "background": "#FFFFFF"},
-    {"title": "Активный участник", "min_points": 2, "background": "#FF5B5B"},
-    {"title": "Эксперт", "min_points": 20, "background": "#9C9DFF"},
-    {"title": "Мастер", "min_points": 200, "background": "#EF89FF"},
-    {"title": "Админ", "min_points": 500, "background": "#FF4BE7"},
+    {"title": "Новичок", "min_points": 0, "background": "#333333"},
+    {"title": "Любознательный", "min_points": 5, "background": "#4D3C00"},
+    {"title": "Активный участник", "min_points": 25, "background": "#6B3200"},
+    {"title": "Эксперт", "min_points": 50, "background": "#1A2A66"},
+    {"title": "Мастер", "min_points": 200, "background": "#3E0066"},
+    {"title": "ИИ", "min_points": 500, "background": "#66001F"},
 ]
 
 def upgrade(id):
