@@ -30,15 +30,6 @@ BASE_DIR = Path(__file__).resolve().parent
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
-levels = [
-    {"title": "Новичок", "min_points": 0, "background": "#DBDBDB"},
-    {"title": "Любознательный", "min_points": 1, "background": "#FFFFFF"},
-    {"title": "Активный участник", "min_points": 2, "background": "#FF5B5B"},
-    {"title": "Эксперт", "min_points": 20, "background": "#9C9DFF"},
-    {"title": "Мастер", "min_points": 200, "background": "#EF89FF"},
-    {"title": "Админ", "min_points": 500, "background": "#FF4BE7"},
-]
-
 @app.get("/logout", tags="Выход")
 async def logout(request: Request):
     # Создаем редирект-ответ
@@ -74,8 +65,8 @@ async def doregister(
                 name=name,
                 username=login,
                 password=function.hash_password(password),
-                title="Участник",
-                background="#DBDBDB",
+                title="Новичок",
+                background="#333333",
                 min_points=0
             )
             conn.add(user)
@@ -403,6 +394,9 @@ async def addcomment(
         )
         conn.add(comments)
         conn.commit()
+    function.upgrade(request.cookies.get("id"))
+    function.upgrade_title(request.cookies.get("id"))
+
 
     return RedirectResponse(url=f'/question/{id}', status_code=303)
     
@@ -414,9 +408,10 @@ async def profile(request: Request, username: str):
                 init.User.name,
                 init.User.title,
                 init.User.background,
+                init.User.is_admin,
             ).where(init.User.username == username)
             data = conn.execute(stmt).fetchall()
-            account = [data[0].id, data[0].name, username, data[0].title, data[0].background]
+            account = [data[0].id, data[0].name, username, data[0].title, data[0].background, data[0].is_admin,]
             stmt = select(
                 init.Question.id,
                 init.Question.owner,
