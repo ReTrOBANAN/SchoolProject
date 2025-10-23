@@ -14,15 +14,15 @@
         <header class="header-inner container">
             <a class="header-top" href="/">
                 <div class="header-logo">
-                    <img src="{{ url_for('static', path='imgs/logo-removebg-preview.png') }}" width="100" height="100" alt="Логотип">
+                    <img src="{{ url_for('static', path='imgs/logo.png') }}" width="60" height="60" alt="Логотип">
                 </div>
                 <input type="text" id="search" class="input search-input" placeholder="Может вопрос уже задан?">
             </a>
             
             <div class="header-actions">
-                {% if account[2] %}
+                {% if username %}
                     <button id="create" class="btn header-actions-create">Создать вопрос</button>
-                    <a href="/profile/{{ account[2] }}" class="link">{{ account[1] }}</a>
+                    <a href="/profile/{{ username }}" class="link">{{ name }}</a>
                 {% else %}
                     <a href="/login" class="link">Войти</a>
                 {% endif %}
@@ -32,13 +32,14 @@
     <main>
         <h1 class="visually-hidden">Профиль</h1>
         <section class="profile-container container">
-            <a href="/" class="arrow-back-answer">
-                <img src="{{ url_for('static', path='imgs/arrow.svg') }}" alt="">
+            <a href="javascript:void(0);" onclick="history.back();" class="arrow-back-answer">
+                <img src="{{ url_for('static', path='imgs/arrow.svg') }}" alt="Назад">
             </a>
             <div class="profile">
                 <div class="profile-info">
                     <div class="profile-name">{{ account[1] }} ({{ account[2] }})</div>
                     <div class="profile-additional">ID: {{ account[0] }}</div>
+                    <!-- <div class="profile-additional" style="color: {{ account[4] }};">Титул: {{ account[3] }}</div> -->
                     <a class="link logout-link" href="/logout">Выйти из аккаунта</a>
                 </div>
                 <div class="profile-question" id="profileQuestionsContainer" data-username="{{ account[2] }}">
