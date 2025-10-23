@@ -11,6 +11,9 @@ from requests import session
 from sqlalchemy.future import select
 from sqlalchemy.orm import Session
 from sqlalchemy import update
+import uuid
+import shutil
+from fastapi import UploadFile, File
 
 import init
 import function
@@ -130,8 +133,29 @@ async def doadd(
     subject: str = Form(...),
     grade: str = Form(...),
     description: str = Form(...),
+    image: UploadFile = File(None)  # Добавляем загрузку файла
 ):
     try:
+        image_path = None
+        
+        # Обработка загруженного изображения
+        if image and image.filename:
+            # Проверяем тип файла
+            if not image.content_type.startswith('image/'):
+                return RedirectResponse(url="/?error=invalid_image_type", status_code=303)
+            
+            # Создаем уникальное имя файла
+            file_extension = image.filename.split('.')[-1]
+            filename = f"{uuid.uuid4()}.{file_extension}"
+            
+            # Сохраняем файл в папку static/images
+            image_path = f"static/images/{filename}"
+            os.makedirs("static/images", exist_ok=True)
+            
+            with open(image_path, "wb") as buffer:
+                content = await image.read()
+                buffer.write(content)
+        
         with Session(init.engine) as conn:
             question = init.Question(
                 owner=function.decrypt(request.cookies.get("username")),
@@ -139,11 +163,13 @@ async def doadd(
                 subject=subject,
                 grade=grade,
                 description=description,
+                image_path=image_path  # Сохраняем путь к изображению
             )
             conn.add(question)
-            conn.commit()  # Важно: commit после добавления
+            conn.commit()
             function.upgrade(request.cookies.get("id"))
             function.upgrade_title(request.cookies.get("id"))
+            
         return RedirectResponse(url="/", status_code=303)
         
     except Exception as e:
@@ -272,6 +298,7 @@ async def question_page(request: Request, note_id: int):
                 init.Question.description,
                 init.Question.id,
                 init.Question.created_at,
+                init.Question.image_path,
             ).where(init.Question.id == note_id)
             question_data = conn.execute(stmt).fetchone()
             
@@ -285,7 +312,8 @@ async def question_page(request: Request, note_id: int):
                 question_data.grade,
                 question_data.description,
                 question_data.id,
-                question_data.created_at
+                question_data.created_at,
+                question_data.image_path,
             ]
             
         with Session(init.engine) as conn:
