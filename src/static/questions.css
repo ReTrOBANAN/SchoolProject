@@ -218,9 +218,6 @@ body {
     color: var(--color-green-dark);
 }
 
-.admin-link {
-    margin-top: 20px;
-}
 
 @media (max-width: 1024px) {
     /* create */
