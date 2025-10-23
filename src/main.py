@@ -25,6 +25,7 @@ from pathlib import Path
 from typing import Optional
 from datetime import datetime
 
+init.Base.metadata.create_all(init.engine)
 app = FastAPI()
 BASE_DIR = Path(__file__).resolve().parent
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
@@ -306,16 +307,6 @@ async def question_page(request: Request, note_id: int):
                 question_data.created_at,
                 question_data.image_path,
             ]
-            stmt = select(
-                init.User.id,
-                init.User.name,
-                init.User.title,
-                init.User.background,
-                init.User.is_admin,
-            ).where(init.User.username == result[1])
-            data = conn.execute(stmt).fetchall()
-            account = [data[0].id, data[0].name, result[1], data[0].title, data[0].background, data[0].is_admin,]
-            
         with Session(init.engine) as conn:
             # Получаем комментарии
             stmt = select(
@@ -331,7 +322,6 @@ async def question_page(request: Request, note_id: int):
         
         return templates.TemplateResponse("answer.html", {
             "username": function.decrypt(request.cookies.get("username")),
-            "account": account,
             "name": function.decrypt(request.cookies.get("name")),
             "request": request,
             "result": result,
@@ -349,6 +339,7 @@ async def question_page(request: Request, note_id: int):
                 init.Question.description,
                 init.Question.id,
                 init.Question.created_at,
+                init.Question.image_path,
             ).where(init.Question.id == note_id)
             question_data = conn.execute(stmt).fetchone()
             
@@ -362,7 +353,8 @@ async def question_page(request: Request, note_id: int):
                 question_data.grade,
                 question_data.description,
                 question_data.id,
-                question_data.created_at
+                question_data.created_at,
+                question_data.image_path,
             ]
             
             # Получаем комментарии

@@ -30,6 +30,12 @@ function timeAgo(dateString) {
 }
 
 
+questionImage = document.getElementById('questionImage')
+questionSrc = questionImage.dataset.src
+questionImage.innerHTML = `
+    <img id="questionImage" src="${questionSrc.split('src')[1]}" alt="Изображение пользователя">
+`
+
 
 const answersList = document.getElementById('answerList')
 async function start() {
