@@ -8,8 +8,12 @@ import os
 class Base(DeclarativeBase):
     pass
 
+from sqlalchemy import String, Boolean
+from sqlalchemy.orm import Mapped, mapped_column
+
 class User(Base):
     __tablename__ = "users"
+
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(30))
     username: Mapped[str] = mapped_column(String(30))
@@ -17,8 +21,16 @@ class User(Base):
     title: Mapped[str] = mapped_column(String(30))
     background: Mapped[str] = mapped_column(String(30))
     min_points: Mapped[int]
+
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)  # 🟢 флажок админа
+
     def __repr__(self) -> str:
-        return f"User(id={self.id!r}, name={self.name!r}, username={self.username!r}, password={self.password!r}, title={self.title!r}, background={self.background!r}, min_points={self.min_points!r})"
+        return (
+            f"User(id={self.id!r}, name={self.name!r}, username={self.username!r}, "
+            f"password={self.password!r}, title={self.title!r}, background={self.background!r}, "
+            f"min_points={self.min_points!r}, is_admin={self.is_admin!r})"
+        )
+
 
 class Question(Base):
     __tablename__ = "questions"
