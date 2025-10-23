@@ -19,3 +19,25 @@ adminForm.addEventListener('submit', async (e) => {
         document.getElementById("errorMessage").innerText = data.error
     }
 })
+
+const createBtn = document.getElementById('create')
+const overlayContainer = document.getElementById('overlayCreate')
+const closeBtn = document.getElementById('close')
+
+if (createBtn) {
+    createBtn.addEventListener('click', () => {
+        overlayContainer.classList.add('active')
+    })
+}
+
+closeBtn.addEventListener('click', () => {
+    overlayContainer.classList.remove('active')
+
+    const selects = overlayContainer.querySelectorAll('select')
+    selects.forEach((select) => {
+        select.selectedIndex = 0;
+    })
+
+    const textarea = overlayContainer.querySelector('textarea')
+    if (textarea) textarea.value = ''
+})

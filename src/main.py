@@ -447,7 +447,7 @@ async def profile(request: Request, username: str):
     if request.cookies.get('id'):
         return templates.TemplateResponse(
             "profile.html", 
-            {"request": request, "account": account, "questions": questions, "name": function.decrypt(request.cookies.get("name")), "username": function.decrypt(request.cookies.get("username"))}
+            {"request": request, "account": account, "questions": questions, "name": function.decrypt(request.cookies.get("name")), "username": function.decrypt(request.cookies.get("username")), "id": request.cookies.get("id")}
         )
     return templates.TemplateResponse(
     "profile.html", 
