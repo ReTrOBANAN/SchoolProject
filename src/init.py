@@ -42,8 +42,9 @@ class Question(Base):
     description: Mapped[str] = mapped_column(String(1000))
     like: Mapped[int] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    image_path: Mapped[str] = mapped_column(String(500), nullable=True)  # Добавьте это поле
     def __repr__(self) -> str:
-        return f"Question(id={self.id!r}, owner={self.owner!r}, owner_name={self.owner_name!r}, subject={self.subject!r}, title={self.title!r}, description={self.description!r}, created={self.created_at!r})"
+        return f"Question(id={self.id!r}, owner={self.owner!r}, owner_name={self.owner_name!r}, subject={self.subject!r}, title={self.title!r}, description={self.description!r}, created={self.created_at!r}, image_path={self.image_path!r})"
 
 class Comment(Base):
     __tablename__ = "Comments"
