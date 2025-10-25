@@ -59,8 +59,8 @@
         </button>
         <form action="/doadd" method="post" class="create-form" enctype="multipart/form-data">
             <div class="create-form-text">
-                <label for="questionText">Какой у вас вопрос?</label>
-                <textarea class="form-text-textarea" name="description" id="questionText" minlength="1" maxlength="10000" required></textarea>
+                <label for="questionText">Какой у вас вопрос? (необязательно)</label>
+                <textarea class="form-text-textarea" name="description" id="questionText" minlength="0" maxlength="10000" placeholder="Опишите ваш вопрос или просто загрузите изображение..."></textarea>
             </div>
             <div class="create-form-section">
                 <select class="item-filter-subject input" name="subject">
@@ -84,11 +84,14 @@
                     <option value="11">11 класс</option>
                 </select>
             </div>
-            <!-- Добавляем поле для загрузки изображения -->
+            <!-- Поле для загрузки изображения -->
             <div class="create-form-image">
                 <label for="questionImage">Добавить изображение (опционально)</label>
                 <input type="file" name="image" id="questionImage" accept="image/*">
-                <small>Поддерживаемые форматы: JPG, PNG, GIF</small>
+                <small>Поддерживаемые форматы: JPG, PNG, GIF, WEBP</small>
+            </div>
+            <div class="create-form-info">
+                <small>💡 Вы можете добавить только текст, только изображение, или и то и другое</small>
             </div>
             <button type="submit" class="btn">Создать вопрос</button>
         </form>
