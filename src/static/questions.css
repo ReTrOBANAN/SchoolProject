@@ -146,6 +146,7 @@ body {
     border-radius: 10px;
     transition: border-color 0.2s, box-shadow 0.2s;
     color: var(--color-blue-dark);
+    min-height: 250px;
 }
 
 .form-text-textarea-answer {
@@ -194,6 +195,18 @@ body {
 .upload-label {
     display: flex;
     align-items: center;
+    gap: 10px;
+}
+
+.file-item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;  
+}
+
+.file-item:hover {
+    text-decoration: underline;
 }
 
 
@@ -232,10 +245,6 @@ body {
     color: var(--color-green-dark);
 }
 
-.aboba {
-    border: none;
-    background: transparent;
-}
 
 @media (max-width: 1024px) {
     /* create */

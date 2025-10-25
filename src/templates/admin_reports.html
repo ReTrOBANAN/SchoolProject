@@ -32,6 +32,9 @@
     </div>
     <main>
         <section class="admin-container container">
+            <a href="javascript:void(0);" onclick="history.back();" class="arrow-back-answer">
+                <img src="{{ url_for('static', path='imgs/arrow.svg') }}" alt="Назад">
+            </a>
             <h1 class="answers-title">Назначение админом</h1>
             
             <form action="/admin/add", method="post" class="admin-form" id="adminForm">
