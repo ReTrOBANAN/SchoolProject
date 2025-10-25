@@ -183,6 +183,20 @@ body {
     border-radius: 15px;
 }
 
+
+/* upload */
+.upload-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.upload-label {
+    display: flex;
+    align-items: center;
+}
+
+
 /* admin */
 .admin-container {
     padding-top: 30px;
@@ -218,6 +232,10 @@ body {
     color: var(--color-green-dark);
 }
 
+.aboba {
+    border: none;
+    background: transparent;
+}
 
 @media (max-width: 1024px) {
     /* create */

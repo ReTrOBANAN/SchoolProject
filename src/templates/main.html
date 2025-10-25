@@ -85,8 +85,14 @@
                 </select>
             </div>
             <!-- Добавляем поле для загрузки изображения -->
-            <div class="create-form-image">
-                <input type="file" name="image" accept="image/*">
+            <div class="upload-container">
+                <label class="upload-label" for="imageInput">
+                    <img src="{{ url_for('static', path='imgs/clip.svg') }}" alt="Прикрепить файл">
+                    Прикрепить изображения
+                </label>
+                <input class="visually-hidden" type="file" id="imageInput" name="image" accept="image/*" multiple>
+
+                <div class="preview-list" id="previewList"></div>
             </div>
             <button type="submit" class="btn">Создать вопрос</button>
         </form>
