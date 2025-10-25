@@ -118,17 +118,20 @@ async def add(request: Request):
         return templates.TemplateResponse("add_question.html", {"request": request})
     else:
         return RedirectResponse(url="/login", status_code=303)
-
 @app.post("/doadd", tags=["Добавить вопрос"])
 async def doadd(
     request: Request,
     subject: str = Form(...),
     grade: str = Form(...),
-    description: str = Form(...),
-    image: UploadFile = File(None)  # Добавляем загрузку файла
+    description: str = Form(default=""),  # Делаем опциональным
+    image: UploadFile = File(None)
 ):
     try:
         image_path = None
+        
+        # Проверяем, что хотя бы одно из полей (описание или фото) заполнено
+        if not description.strip() and (not image or not image.filename):
+            return RedirectResponse(url="/?error=empty_content", status_code=303)
         
         # Обработка загруженного изображения
         if image and image.filename:
@@ -154,8 +157,8 @@ async def doadd(
                 owner_name=function.decrypt(request.cookies.get("name")),
                 subject=subject,
                 grade=grade,
-                description=description,
-                image_path=image_path  # Сохраняем путь к изображению
+                description=description.strip(),  # Убираем лишние пробелы
+                image_path=image_path
             )
             conn.add(question)
             conn.commit()
@@ -307,6 +310,16 @@ async def question_page(request: Request, note_id: int):
                 question_data.created_at,
                 question_data.image_path,
             ]
+            stmt = select(
+                init.User.id,
+                init.User.name,
+                init.User.title,
+                init.User.background,
+                init.User.is_admin,
+            ).where(init.User.username == result[0])
+            data = conn.execute(stmt).fetchall()
+            account = [data[0].id, data[0].name, result[0], data[0].title, data[0].background, data[0].is_admin,]
+            
         with Session(init.engine) as conn:
             # Получаем комментарии
             stmt = select(
