@@ -120,6 +120,9 @@ closeBtn.addEventListener('click', () => {
 
     const textarea = overlayContainer.querySelector('textarea')
     if (textarea) textarea.value = ''
+
+    filesArray = []
+    previewList.innerHTML = ``
 })
 
 start()
@@ -138,35 +141,24 @@ const previewList = document.getElementById('previewList')
 let filesArray = []
 
 imageInput.addEventListener('change', (event) => {
-    // console.log(event)
-    console.log(event.target.files)
-    // const newFiles = Array.from(event.target.files);
-    // filesArray = filesArray.concat(newFiles);
-    // console.log(filesArray)
-    //   renderPreviews();
+    filesArray.push(event.target.files)
+    renderPreviews()
 })
 
-// function renderPreviews() {
-//     previewList.innerHTML = '';
-//     filesArray.forEach((file, index) => {
-//     const reader = new FileReader();
-//     reader.onload = (e) => {
-//         const item = document.createElement('div');
-//         item.className = 'preview-item';
-//         item.innerHTML = `
-//         <img src="${e.target.result}" alt="preview">
-//         <button class="remove-btn" data-index="${index}">×</button>
-//         `;
-//         previewList.appendChild(item);
-//     };
-//     reader.readAsDataURL(file);
-//     });
-// }
+function renderPreviews() {
+    const html = filesArray.map((file, index) => {
+        return `<li class="file-item" data-index="${index}">${file[0]['name']}</li>`
+    }).join('')
+    previewList.innerHTML = html
+}
 
-// previewList.addEventListener('click', (e) => {
-//     if (e.target.classList.contains('remove-btn')) {
-//     const index = e.target.dataset.index;
-//     filesArray.splice(index, 1);
-//     renderPreviews();
-//     }
-// });
+previewList.addEventListener('click', (e) => {
+    const item = e.target.closest('.file-item')
+    if (!item) {
+        return
+    }
+
+    const index = item.dataset.index
+    filesArray.splice(index, 1);
+    renderPreviews();
+});
