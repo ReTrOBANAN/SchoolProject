@@ -159,12 +159,6 @@ previewList.addEventListener('click', (e) => {
     }
 
     const index = item.dataset.index
-    filesArray.splice(index, 1);        // удаляем элемент из массива
+    filesArray.splice(index, 1);
     renderPreviews();
-    // const item = e.target.closest('.file-item');
-    // if (!item) return;
-    
-    // const index = item.dataset.index;  // получаем индекс
-    // filesArray.splice(index, 1);        // удаляем элемент из массива
-    // renderPreviews();                   // перерисовываем список
 });

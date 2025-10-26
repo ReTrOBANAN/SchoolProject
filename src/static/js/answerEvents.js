@@ -212,5 +212,33 @@ textarea.addEventListener("input", () => {
     textarea.style.height = Math.min(textarea.scrollHeight, 1000) + "px";
 });
 
+// upload
+const imageInput = document.getElementById('imageInput')
+const previewList = document.getElementById('previewList')
+let filesArray = []
+
+imageInput.addEventListener('change', (event) => {
+    filesArray.push(event.target.files)
+    renderPreviews()
+})
+
+function renderPreviews() {
+    const html = filesArray.map((file, index) => {
+        return `<li class="file-item" data-index="${index}">${file[0]['name']}</li>`
+    }).join('')
+    previewList.innerHTML = html
+}
+
+previewList.addEventListener('click', (e) => {
+    const item = e.target.closest('.file-item')
+    if (!item) {
+        return
+    }
+
+    const index = item.dataset.index
+    filesArray.splice(index, 1);
+    renderPreviews();
+});
+
 
 
