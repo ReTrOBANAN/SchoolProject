@@ -11,12 +11,12 @@
 <body>
     <div class="header">
         <header class="header-inner container">
-            <a class="header-top" href="/">
-                <div class="header-logo">
+            <div class="header-top" href="/">
+                <a class="header-logo">
                     <img src="{{ url_for('static', path='imgs/logo.png') }}" width="60" height="60" alt="Логотип">
-                </div>
+                </a>
                 <input type="text" id="search" class="input search-input" placeholder="Может вопрос уже задан?">
-            </a>
+            </div>
             
             <div class="header-actions">
                 {% if username %}
@@ -52,49 +52,53 @@
                 </ul>
             </div>
         </section>
-<div class="overlay" id="overlay">
-    <section class="create">
-        <button class="create-close-btn" id="close">
-            <img src="{{ url_for('static', path='imgs/close.svg') }}" alt="">
-        </button>
-        <form action="/doadd" method="post" class="create-form" enctype="multipart/form-data">
-            <div class="create-form-text">
-                <label for="questionText">Какой у вас вопрос? (необязательно)</label>
-                <textarea class="form-text-textarea" name="description" id="questionText" minlength="0" maxlength="10000" placeholder="Опишите ваш вопрос или просто загрузите изображение..."></textarea>
-            </div>
-            <div class="create-form-section">
-                <select class="item-filter-subject input" name="subject">
-                    <option value="Математика" selected>Математика</option>
-                    <option value="Русский язык">Русский язык</option>
-                    <option value="Английский язык">Английский язык</option>
-                    <option value="Биология">Биология</option>
-                    <option value="Физика">Физика</option>
-                </select>
-                <select class="item-filter-grade input" name="grade">
-                    <option value="1" selected>1 класс</option>
-                    <option value="2">2 класс</option>
-                    <option value="3">3 класс</option>
-                    <option value="4">4 класс</option>
-                    <option value="5">5 класс</option>
-                    <option value="6">6 класс</option>
-                    <option value="7">7 класс</option>
-                    <option value="8">8 класс</option>
-                    <option value="9">9 класс</option>
-                    <option value="10">10 класс</option>
-                    <option value="11">11 класс</option>
-                </select>
-            </div>
-            <div class="create-form-image">
-                <label for="questionImage">Добавить изображение (опционально)</label>
-                <input type="file" name="image" id="questionImage" accept="image/*">
-                <small>Поддерживаемые форматы: JPG, PNG, GIF, WEBP</small>
-            </div>
-            <div class="create-form-info">
-            </div>
-            <button type="submit" class="btn">Создать вопрос</button>
-        </form>
-    </section>
-</div>
+        <div class="overlay" id="overlay">
+            <section class="create">
+                <button class="create-close-btn" id="close">
+                    <img src="{{ url_for('static', path='imgs/close.svg') }}" alt="">
+                </button>
+                <form action="/doadd" method="post" class="create-form" enctype="multipart/form-data">
+                    <div class="create-form-text">
+                        <label for="questionText">Какой у вас вопрос? (необязательно)</label>
+                        <textarea class="form-text-textarea" name="description" id="questionText" minlength="0" maxlength="10000" placeholder="Опишите ваш вопрос или просто загрузите изображение..."></textarea>
+                    </div>
+                    <div class="create-form-section">
+                        <select class="item-filter-subject input" name="subject">
+                            <option value="Математика" selected>Математика</option>
+                            <option value="Русский язык">Русский язык</option>
+                            <option value="Английский язык">Английский язык</option>
+                            <option value="Биология">Биология</option>
+                            <option value="Физика">Физика</option>
+                        </select>
+                        <select class="item-filter-grade input" name="grade">
+                            <option value="1" selected>1 класс</option>
+                            <option value="2">2 класс</option>
+                            <option value="3">3 класс</option>
+                            <option value="4">4 класс</option>
+                            <option value="5">5 класс</option>
+                            <option value="6">6 класс</option>
+                            <option value="7">7 класс</option>
+                            <option value="8">8 класс</option>
+                            <option value="9">9 класс</option>
+                            <option value="10">10 класс</option>
+                            <option value="11">11 класс</option>
+                        </select>
+                    </div>
+                    <div class="upload-container">
+                        <label class="upload-label" for="imageInput">
+                            <img src="{{ url_for('static', path='imgs/clip.svg') }}" alt="Прикрепить файл">
+                            Прикрепить изображения
+                        </label>
+                        <input class="visually-hidden" type="file" id="imageInput" name="images" accept="image/*" multiple>
+
+                        <ul class="preview-list" id="previewList"></ul>
+                    </div>
+                    <div class="create-form-info">
+                    </div>
+                    <button type="submit" class="btn">Создать вопрос</button>
+                </form>
+            </section>
+        </div>
     </main>
 </body>
 </html>

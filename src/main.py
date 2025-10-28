@@ -118,6 +118,8 @@ async def add(request: Request):
         return templates.TemplateResponse("add_question.html", {"request": request})
     else:
         return RedirectResponse(url="/login", status_code=303)
+
+
 @app.post("/doadd", tags=["Добавить вопрос"])
 async def doadd(
     request: Request,
@@ -126,6 +128,8 @@ async def doadd(
     description: str = Form(default=""),  # Делаем опциональным
     image: UploadFile = File(None)
 ):
+    if not description and not image:
+        return RedirectResponse("/", status_code=303)
     try:
         image_path = None
         
@@ -170,6 +174,8 @@ async def doadd(
     except Exception as e:
         print(f"Ошибка при добавлении вопроса: {e}")
         return RedirectResponse(url="/?error=server_error", status_code=303)
+
+
 
 @app.get("/api/answers", tags=["API"])
 async def get_answers():

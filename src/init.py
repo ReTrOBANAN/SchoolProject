@@ -22,7 +22,7 @@ class User(Base):
     background: Mapped[str] = mapped_column(String(30))
     min_points: Mapped[int]
 
-    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)  # 🟢 флажок админа
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
 
     def __repr__(self) -> str:
         return (

@@ -13,12 +13,12 @@
 <body>
     <div class="header">
         <header class="header-inner container">
-            <a class="header-top" href="/">
-                <div class="header-logo">
+            <div class="header-top" href="/">
+                <a class="header-logo">
                     <img src="{{ url_for('static', path='imgs/logo.png') }}" width="60" height="60" alt="Логотип">
-                </div>
+                </a>
                 <input type="text" id="search" class="input search-input" placeholder="Может вопрос уже задан?">
-            </a>
+            </div>
             
             <div class="header-actions">
                 {% if username %}

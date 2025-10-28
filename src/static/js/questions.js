@@ -162,3 +162,4 @@ previewList.addEventListener('click', (e) => {
     filesArray.splice(index, 1);
     renderPreviews();
 });
+
