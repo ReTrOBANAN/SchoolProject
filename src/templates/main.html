@@ -32,15 +32,27 @@
         <h1 class="visually-hidden">Вопросы</h1>
         <section class="questions container">
             <div class="questions-item-filter">
-                <select class="item-filter-subject input" id="subject">
+                <select class="item-filter" id="subject">
                     <option value="all" selected>Все предметы</option>
                     <option value="math">Математика</option>
                     <option value="russian">Русский язык</option>
+                    <option value="literature">Литература</option>
                     <option value="english">Английский язык</option>
+                    <option value="german">Немецкий язык</option>
+                    <option value="french">Французский язык</option>
                     <option value="biology">Биология</option>
+                    <option value="chemistry">Химия</option>
                     <option value="physics">Физика</option>
+                    <option value="geography">География</option>
+                    <option value="history">История</option>
+                    <option value="social_studies">Обществознание</option>
+                    <option value="computer_science">Информатика</option>
+                    <option value="music">Музыка</option>
+                    <option value="art">ИЗО</option>
+                    <option value="pe">Физическая культура</option>
                 </select>
-                <select class="item-filter-grade input" id="grade">
+
+                <select class="item-filter" id="grade">
                     <option value="all" selected>Все классы</option>
                     <option value="1-4">1 - 4 классы</option>
                     <option value="5-9">5 - 9 классы</option>
@@ -60,17 +72,29 @@
                 <form action="/doadd" method="post" class="create-form" enctype="multipart/form-data">
                     <div class="create-form-text">
                         <label for="questionText">Какой у вас вопрос?</label>
-                        <textarea class="form-text-textarea" name="description" id="questionText" minlength="0" maxlength="10000" placeholder="Опишите ваш вопрос" required></textarea>
+                        <textarea class="form-text-textarea" name="description" id="questionText" minlength="0" maxlength="10000" required></textarea>
                     </div>
                     <div class="create-form-section">
-                        <select class="item-filter-subject input" name="subject">
+                        <select class="item-filter" name="subject">
                             <option value="Математика" selected>Математика</option>
                             <option value="Русский язык">Русский язык</option>
+                            <option value="Литература">Литература</option>
                             <option value="Английский язык">Английский язык</option>
+                            <option value="Немецкий язык">Немецкий язык</option>
+                            <option value="Французский язык">Французский язык</option>
                             <option value="Биология">Биология</option>
+                            <option value="Химия">Химия</option>
                             <option value="Физика">Физика</option>
+                            <option value="География">География</option>
+                            <option value="История">История</option>
+                            <option value="Обществознание">Обществознание</option>
+                            <option value="Информатика">Информатика</option>
+                            <option value="Музыка">Музыка</option>
+                            <option value="ИЗО">ИЗО</option>
+                            <option value="Физическая культура">Физическая культура</option>
                         </select>
-                        <select class="item-filter-grade input" name="grade">
+
+                        <select class="item-filter" name="grade">
                             <option value="1" selected>1 класс</option>
                             <option value="2">2 класс</option>
                             <option value="3">3 класс</option>

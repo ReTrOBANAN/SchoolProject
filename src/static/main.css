@@ -289,6 +289,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
   border: none;
   border-bottom: var(--border);
   background-color: transparent;
@@ -299,10 +302,19 @@ h1, h2, h3, h4, h5, h6 {
   width: 100%;
   color: var(--color-blue-dark)
 }
+.input::placeholder {
+  color: var(--color-blue-dark);
+}
+
+.input::-webkit-input-placeholder {
+  color: var(--color-blue-dark);;
+}
+
 
 .input:focus {
   border-color: var(--color-dark-grey);
 }
+
 
 .btn { 
   padding: 14px;

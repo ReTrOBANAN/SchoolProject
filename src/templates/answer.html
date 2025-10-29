@@ -64,7 +64,7 @@
                     <div>{{ result[3] }} класс</div>
                     <div id="questionTime" data-question-time="{{ result[6] }}"></div>
                 </div>
-                <div class="question-text">{{ result[4] }}</div>
+                <div class="answer-text">{{ result[4] }}</div>
                 {% if images %}
                 <div class="question-images">
                     {% for img in images %}
@@ -82,7 +82,7 @@
                 {% if username %}
                 <div class="questions-content-item">
                     <form action="/addcomment" method="post" class="answer-textarea">
-                        <label for="questionText">Хотите ответить?</label>
+                        <label for="comment">Хотите ответить?</label>
                         <input type="hidden" value="{{ result[5] }}" name="id">
                         <textarea class="form-text-textarea-answer" name="comment" id="answerTextArea" required minlength="1"></textarea>
                         <button type="submit" class="answer-btn btn">Ответить</button>
@@ -108,14 +108,25 @@
                         <textarea class="form-text-textarea" name="description" id="questionText" minlength="1" required></textarea>
                     </div>
                     <div class="create-form-section">
-                        <select class="item-filter-subject input" id="subject-create" name="subject">
+                        <select class="item-filter" name="subject">
                             <option value="Математика" selected>Математика</option>
                             <option value="Русский язык">Русский язык</option>
+                            <option value="Литература">Литература</option>
                             <option value="Английский язык">Английский язык</option>
+                            <option value="Немецкий язык">Немецкий язык</option>
+                            <option value="Французский язык">Французский язык</option>
                             <option value="Биология">Биология</option>
+                            <option value="Химия">Химия</option>
                             <option value="Физика">Физика</option>
+                            <option value="География">География</option>
+                            <option value="История">История</option>
+                            <option value="Обществознание">Обществознание</option>
+                            <option value="Информатика">Информатика</option>
+                            <option value="Музыка">Музыка</option>
+                            <option value="ИЗО">ИЗО</option>
+                            <option value="Физическая культура">Физическая культура</option>
                         </select>
-                        <select class="item-filter-grade input" id="grade-create" name="grade">
+                        <select class="item-filter" id="grade-create" name="grade">
                             <option value="1" selected>1 класс</option>
                             <option value="2">2 класс</option>
                             <option value="3">3 класс</option>
@@ -200,14 +211,25 @@
                         <textarea class="form-text-textarea" name="new_description" id="questionText" minlength="1" maxlength="10000"></textarea>
                     </div>
                     <div class="create-form-section">
-                        <select class="item-filter-subject input" name="subject">
+                        <select class="item-filter" name="subject">
                             <option value="Математика" selected>Математика</option>
                             <option value="Русский язык">Русский язык</option>
+                            <option value="Литература">Литература</option>
                             <option value="Английский язык">Английский язык</option>
+                            <option value="Немецкий язык">Немецкий язык</option>
+                            <option value="Французский язык">Французский язык</option>
                             <option value="Биология">Биология</option>
+                            <option value="Химия">Химия</option>
                             <option value="Физика">Физика</option>
+                            <option value="География">География</option>
+                            <option value="История">История</option>
+                            <option value="Обществознание">Обществознание</option>
+                            <option value="Информатика">Информатика</option>
+                            <option value="Музыка">Музыка</option>
+                            <option value="ИЗО">ИЗО</option>
+                            <option value="Физическая культура">Физическая культура</option>
                         </select>
-                        <select class="item-filter-grade input" name="grade">
+                        <select class="item-filter" name="grade">
                             <option value="1" selected>1 класс</option>
                             <option value="2">2 класс</option>
                             <option value="3">3 класс</option>

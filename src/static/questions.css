@@ -136,6 +136,21 @@ body {
     row-gap: 5px;
     height: 100%;
 }
+.item-filter {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: none;
+    border-bottom: var(--border);
+    background-color: transparent;
+    outline: 0;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    font-size: 16px;
+    width: 100%;
+    color: var(--color-blue-dark);
+    border-radius: 0;
+}
 .form-text-textarea {
     height: 100%;
     background: transparent;
@@ -275,6 +290,10 @@ body {
     .create {
         width: 75%;
         height: 75%;
+    }
+
+    .admin-input {
+        width: 80%;
     }
 }
 

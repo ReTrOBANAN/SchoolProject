@@ -211,7 +211,7 @@
     margin-bottom: 10px;
     flex-wrap: wrap;
     font-weight: 700;
-    font-size: clamp(16px, 1.22vw, 32px);
+    font-size: clamp(20px, 1.22vw, 32px);
 }
 .label-report {
     height: 100%;
@@ -235,7 +235,7 @@
         row-gap: 10px;
     }
     .image-modal img {
-        max-width: 100%;
+        max-width: 90%;
     }
 }
 @media (max-width: 480px) {
