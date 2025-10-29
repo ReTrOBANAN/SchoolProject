@@ -26,8 +26,22 @@ from typing import Optional
 from datetime import datetime
 
 app = FastAPI()
+from fastapi.staticfiles import StaticFiles
+import os
+
+
+# Абсолютный путь до папки static
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+
+# Проверим на всякий случай, что папка существует
+if not os.path.exists(static_dir):
+    print("⚠️ Папка static не найдена по пути:", static_dir)
+
+# Подключаем статику
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
 BASE_DIR = Path(__file__).resolve().parent
-app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
+# app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
 @app.get("/logout", tags="Выход")
@@ -117,58 +131,85 @@ async def add(request: Request):
         return templates.TemplateResponse("add_question.html", {"request": request})
     else:
         return RedirectResponse(url="/login", status_code=303)
+
+import os
+import uuid
+from fastapi import FastAPI, Request, Form, File, UploadFile
+from fastapi.responses import RedirectResponse
+from sqlalchemy.orm import Session
+import init, function  # твои модули
+
+
 @app.post("/doadd", tags=["Добавить вопрос"])
 async def doadd(
     request: Request,
     subject: str = Form(...),
     grade: str = Form(...),
-    description: str = Form(default=""),  # Делаем опциональным
-    image: UploadFile = File(None)
+    description: str = Form(""),
+    images: list[UploadFile] = File(None)
 ):
     try:
-        image_path = None
-        
-        # Проверяем, что хотя бы одно из полей (описание или фото) заполнено
-        if not description.strip() and (not image or not image.filename):
+        # Проверка на пустой вопрос
+        if not description.strip() and (not images or len(images) == 0):
             return RedirectResponse(url="/?error=empty_content", status_code=303)
-        
-        # Обработка загруженного изображения
-        if image and image.filename:
-            # Проверяем тип файла
-            if not image.content_type.startswith('image/'):
-                return RedirectResponse(url="/?error=invalid_image_type", status_code=303)
-            
-            # Создаем уникальное имя файла
-            file_extension = image.filename.split('.')[-1]
-            filename = f"{uuid.uuid4()}.{file_extension}"
-            
-            # Сохраняем файл в папку static/images
-            image_path = f"./SchoolProject/src/static/images/{filename}"
-            os.makedirs("./SchoolProject/src/static/images", exist_ok=True)
-            
-            with open(image_path, "wb") as buffer:
-                content = await image.read()
-                buffer.write(content)
-        
+
+        saved_paths = []
+
+        # Создаем папку для изображений, если не существует
+        # вместо "./SchoolProject/src/static/images"
+        save_dir = os.path.join(static_dir, "images")
+        os.makedirs(save_dir, exist_ok=True)
+
+
+        # Обрабатываем каждое изображение
+        if images:
+            for image in images:
+                if not image.filename:
+                    continue
+
+                # Проверяем тип файла
+                if not image.content_type.startswith("image/"):
+                    continue
+
+                # Генерируем уникальное имя файла
+                ext = image.filename.split('.')[-1]
+                filename = f"{uuid.uuid4()}.{ext}"
+                filepath = os.path.join(save_dir, filename)
+
+                # Сохраняем файл
+                with open(filepath, "wb") as f:
+                    f.write(await image.read())
+
+                # Добавляем путь в список
+                saved_paths.append(f"/static/images/{filename}")
+
+        # Можно хранить пути как JSON, список или строку через запятую
+        image_paths_str = ",".join(saved_paths) if saved_paths else None
+
+        # Добавляем запись в базу
         with Session(init.engine) as conn:
             question = init.Question(
                 owner=function.decrypt(request.cookies.get("username")),
                 owner_name=function.decrypt(request.cookies.get("name")),
                 subject=subject,
                 grade=grade,
-                description=description.strip(),  # Убираем лишние пробелы
-                image_path=image_path
+                description=description.strip(),
+                image_path=image_paths_str
             )
             conn.add(question)
             conn.commit()
+
+            # Повышение уровня пользователя и т.п.
             function.upgrade(request.cookies.get("id"))
             function.upgrade_title(request.cookies.get("id"))
-            
+
+        # Успешный редирект
         return RedirectResponse(url="/", status_code=303)
-        
+
     except Exception as e:
         print(f"Ошибка при добавлении вопроса: {e}")
         return RedirectResponse(url="/?error=server_error", status_code=303)
+
 
 @app.get("/api/answers", tags=["API"])
 async def get_answers():
@@ -281,9 +322,12 @@ async def main(request: Request):
  
 @app.get("/question/{note_id}", tags=["Страница вопроса"])
 async def question_page(request: Request, note_id: int):
-    if request.cookies.get("id"):
+    try:
+        # Проверяем, авторизован ли пользователь
+        user_id = request.cookies.get("id")
+
         with Session(init.engine) as conn:
-            # Получаем вопрос
+            # Получаем данные вопроса
             stmt = select(
                 init.Question.owner,
                 init.Question.owner_name,
@@ -295,10 +339,12 @@ async def question_page(request: Request, note_id: int):
                 init.Question.image_path,
             ).where(init.Question.id == note_id)
             question_data = conn.execute(stmt).fetchone()
-            
+
+            # Если вопрос не найден — редиректим
             if not question_data:
                 return RedirectResponse(url="/", status_code=303)
-                
+
+            # Распаковываем результат в список
             result = [
                 question_data.owner,
                 question_data.owner_name,
@@ -309,82 +355,84 @@ async def question_page(request: Request, note_id: int):
                 question_data.created_at,
                 question_data.image_path,
             ]
-            stmt = select(
-                init.User.id,
-                init.User.name,
-                init.User.title,
-                init.User.background,
-                init.User.is_admin,
-            ).where(init.User.username == result[0])
-            data = conn.execute(stmt).fetchall()
-            account = [data[0].id, data[0].name, result[0], data[0].title, data[0].background, data[0].is_admin,]
-            
-        with Session(init.engine) as conn:
-            # Получаем комментарии
-            stmt = select(
-                init.Comment.owner,
-                init.Comment.description
-            ).where(init.Comment.question_id == note_id).order_by(init.Comment.id.desc())
-            comment_data = conn.execute(stmt).fetchall()
-            
-            comments = [
-                {"owner": row.owner, "description": row.description}
-                for row in comment_data
-            ]
-        
-        return templates.TemplateResponse("answer.html", {
-            "username": function.decrypt(request.cookies.get("username")),
-            "account": account,
-            "name": function.decrypt(request.cookies.get("name")),
-            "request": request,
-            "result": result,
-            "comments": comments,
-        })
-    
-    else:
-        with Session(init.engine) as conn:
-            # Получаем вопрос
-            stmt = select(
-                init.Question.owner,
-                init.Question.owner_name,
-                init.Question.subject,
-                init.Question.grade,
-                init.Question.description,
-                init.Question.id,
-                init.Question.created_at,
-            ).where(init.Question.id == note_id)
-            question_data = conn.execute(stmt).fetchone()
-            
-            if not question_data:
-                return RedirectResponse(url="/", status_code=303)
-                
-            result = [
-                question_data.owner,
-                question_data.owner_name,
-                question_data.subject,
-                question_data.grade,
-                question_data.description,
-                question_data.id,
-                question_data.created_at
-            ]
-            
-            # Получаем комментарии
-            stmt = select(
-                init.Comment.owner,
-                init.Comment.description
-            ).where(init.Comment.question_id == note_id).order_by(init.Comment.id.desc())
-            comment_data = conn.execute(stmt).fetchall()
-            
-            comments = [
-                {"owner": row.owner, "description": row.description}
-                for row in comment_data
-            ]
-        
-        return templates.TemplateResponse("answer.html", {
-            "request": request,
-            "result": result,
-            "comments": comments,
-        })
+
+            # 🔹 Обрабатываем изображения (если несколько — через запятую)
+            image_urls = []
+            if question_data.image_path:
+                # храним только "images/filename.png"
+                image_urls = [p.split("/static/")[-1] for p in question_data.image_path.split(",")]
+
+
+
+        # --- Если пользователь авторизован ---
+        if user_id:
+            with Session(init.engine) as conn:
+                # Получаем данные аккаунта автора вопроса
+                stmt = select(
+                    init.User.id,
+                    init.User.name,
+                    init.User.title,
+                    init.User.background,
+                    init.User.is_admin,
+                ).where(init.User.username == result[0])
+                data = conn.execute(stmt).fetchone()
+
+                account = [
+                    data.id,
+                    data.name,
+                    result[0],
+                    data.title,
+                    data.background,
+                    data.is_admin,
+                ]
+
+                # Получаем комментарии
+                stmt = select(
+                    init.Comment.owner,
+                    init.Comment.description
+                ).where(init.Comment.question_id == note_id).order_by(init.Comment.id.desc())
+                comment_data = conn.execute(stmt).fetchall()
+
+                comments = [
+                    {"owner": row.owner, "description": row.description}
+                    for row in comment_data
+                ]
+
+            return templates.TemplateResponse("answer.html", {
+                "request": request,
+                "username": function.decrypt(request.cookies.get("username")),
+                "name": function.decrypt(request.cookies.get("name")),
+                "account": account,
+                "result": result,
+                "comments": comments,
+                "images": image_urls,
+            })
+
+        # --- Если пользователь не авторизован ---
+        else:
+            with Session(init.engine) as conn:
+                stmt = select(
+                    init.Comment.owner,
+                    init.Comment.description
+                ).where(init.Comment.question_id == note_id).order_by(init.Comment.id.desc())
+                comment_data = conn.execute(stmt).fetchall()
+
+                comments = [
+                    {"owner": row.owner, "description": row.description}
+                    for row in comment_data
+                ]
+
+            return templates.TemplateResponse("answer.html", {
+                "request": request,
+                "result": result,
+                "comments": comments,
+                "images": image_urls,
+            })
+
+    except Exception as e:
+        print(f"Ошибка при загрузке страницы вопроса: {e}")
+        return RedirectResponse(url="/?error=server_error", status_code=303)
+
 
 @app.post("/addcomment", tags=["Добавить комментарий"])
 async def addcomment(

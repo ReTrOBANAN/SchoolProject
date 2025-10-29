@@ -13,12 +13,12 @@
 <body>
     <div class="header">
         <header class="header-inner container">
-            <a class="header-top" href="/">
-                <div class="header-logo">
+            <div class="header-top">
+                <a class="header-logo" href="/">
                     <img src="{{ url_for('static', path='imgs/logo.png') }}" width="60" height="60" alt="Логотип">
-                </div>
+                </a>
                 <input type="text" id="search" class="input search-input" placeholder="Может вопрос уже задан?">
-            </a>
+            </div>
             
             <div class="header-actions">
                 {% if username %}
@@ -65,6 +65,17 @@
                     <div id="questionTime" data-question-time="{{ result[6] }}"></div>
                 </div>
                 <div class="question-text">{{ result[4] }}</div>
+                {% if images %}
+                <div class="question-images">
+                    {% for img in images %}
+                    <img src="{{ url_for('static', path=img) }}" alt="Изображение вопроса" onclick="openModal(this)">
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <div class="image-modal" id="imageModal" onclick="closeModal()">
+                    <img src="" alt="Preview">
+                </div>
+
             </div>
             <div class="answers">
                 <h1 class="answers-title">Ответы</h1>
@@ -117,6 +128,15 @@
                             <option value="10">10 класс</option>
                             <option value="11">11 класс</option>
                         </select>
+                    </div>
+                    <div class="upload-container">
+                        <label class="upload-label" for="imageInput">
+                            <img src="{{ url_for('static', path='imgs/clip.svg') }}" alt="Прикрепить файл">
+                            Прикрепить изображения
+                        </label>
+                        <input class="visually-hidden" type="file" id="imageInput" name="images" accept="image/*" multiple>
+
+                        <ul class="preview-list" id="previewList"></ul>
                     </div>
                     <button type="submit" class="btn">Создать вопрос</button>
                 </form>

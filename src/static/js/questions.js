@@ -120,6 +120,9 @@ closeBtn.addEventListener('click', () => {
 
     const textarea = overlayContainer.querySelector('textarea')
     if (textarea) textarea.value = ''
+
+    filesArray = []
+    previewList.innerHTML = ``
 })
 
 start()
@@ -130,4 +133,63 @@ window.addEventListener('DOMContentLoaded', () => {
     selects.forEach((select) => {
         select.selectedIndex = 0;
     })
+    seacrhInput.value = ''
+});
+
+// upload
+const imageInput = document.getElementById('imageInput')
+const previewList = document.getElementById('previewList')
+let filesArray = []
+
+imageInput.addEventListener('change', (event) => {
+    filesArray.push(...event.target.files)
+    renderPreviews()
+})
+
+function renderPreviews() {
+    const html = filesArray.map((file, index) => {
+        return `<li class="file-item" data-index="${index}">${file['name']}</li>`
+    }).join('')
+    previewList.innerHTML = html
+}
+
+previewList.addEventListener('click', (e) => {
+    const item = e.target.closest('.file-item')
+    if (!item) {
+        return
+    }
+
+    const index = item.dataset.index
+    filesArray.splice(index, 1);
+    renderPreviews();
+});
+
+const form = document.querySelector('.create-form');
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData()
+    formData.append('subject', form.subject.value)
+    formData.append('grade', form.grade.value)
+    formData.append('description', form.description.value)
+
+
+    filesArray.forEach(file => {
+        formData.append('images', file)
+    })
+
+    try {
+        const response = await fetch('/doadd', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.redirected) {
+            window.location.href = response.url; // редирект при успешной отправке
+        } else {
+            const text = await response.text();
+            console.log(text);
+        }
+    } catch (err) {
+        console.error('Ошибка отправки формы:', err);
+    }
 });
