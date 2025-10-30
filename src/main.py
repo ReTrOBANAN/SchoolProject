@@ -254,6 +254,10 @@ async def get_like():
             })
         return JSONResponse(content=like)
 
+from fastapi.responses import JSONResponse
+from sqlalchemy import select
+import json
+
 @app.get("/api/questions", tags=["API"])
 async def get_questions():
     with Session(init.engine) as conn:
@@ -266,22 +270,31 @@ async def get_questions():
             init.Question.description,
             init.Question.created_at,
             init.Question.like,
+            init.Question.image_path,  # <-- добавляем поле с путями
         ).order_by(init.Question.id.desc())
         data = conn.execute(stmt).fetchall()
 
         questions = []
         for row in data:
+            # если image_path хранится как строка с запятыми — превращаем в массив
+            image_list = []
+            if row.image_path:
+                image_list = [img.strip() for img in row.image_path.split(",") if img.strip()]
+
             questions.append({
                 "id": row.id,
                 "username": row.owner,
                 "name": row.owner_name,
-                "subject": row.subject,  
+                "subject": row.subject,
                 "grade": row.grade,
                 "text": row.description,
                 "created_at": row.created_at.isoformat() if row.created_at else None,
                 "like": row.like,
+                "images": image_list,  # <-- теперь тут массив путей
             })
+
         return JSONResponse(content=questions)
+
     
 @app.get("/api/users", tags=["API"])
 async def get_users():

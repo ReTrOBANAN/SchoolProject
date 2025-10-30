@@ -61,18 +61,29 @@ function render(questions = []) {
 }
 
 function toHTML(question) {
-    return `<li class="questions-content-item">
-        <div class="questions-item-header">
-            <a href="/profile/${question.username}" class="item-header-name link">${question.name} (${question.username})</a>
-            <div class="item-header-subject">${question.subject}</div>
-            <div class="item-header-grade">${question.grade} класс</div>
-            <div class="item-header-time">${timeAgo(question.created_at)}</div>
-        </div>
-        <div class="questions-item-body">${question.text}</div>
-        <div class="questions-item-footer">
-            <a class="btn" href="question/${question.id}">Ответить</a>
-        </div>
-    </li>`
+        return `<li class="questions-content-item">
+            <div class="questions-item-header">
+                <a href="/profile/${question.username}" class="item-header-name link">
+                    ${question.name} (${question.username})
+                </a>
+                <div class="item-header-subject">${question.subject}</div>
+                <div class="item-header-grade">${question.grade} класс</div>
+                <div class="item-header-time">${timeAgo(question.created_at)}</div>
+            </div>
+            <div class="questions-item-body">${question.text}</div>
+
+            ${question.images && question.images.length > 0 ? `
+                <div class="question-images">
+                    ${question.images.map(src => `
+                        <img src="${src}" alt="Изображение вопроса" class="question-image">
+                    `).join('')}
+                </div>
+            ` : ''}
+
+            <div class="questions-item-footer">
+                <a class="btn" href="question/${question.id}">Ответить</a>
+            </div>
+        </li>`
 }
 
 function timeAgo(dateString) {
@@ -142,7 +153,26 @@ const previewList = document.getElementById('previewList')
 let filesArray = []
 
 imageInput.addEventListener('change', (event) => {
-    filesArray.push(...event.target.files)
+    const newFiles = Array.from(event.target.files)
+    const MAX_FILES = 5
+    const MAX_SIZE = 3 * 1024 * 1024
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+    console.log(filesArray)
+    newFiles.forEach(file => {
+        if (!ALLOWED_TYPES.includes(file.type)) {
+            alert(`Файл ${file.name} не является изображением JPG/PNG/WebP`)
+            return
+        }
+        if (file.size > MAX_SIZE) {
+            alert(`Файл ${file.name} слишком большой (макс. 3 МБ)`)
+            return
+        }
+        if (filesArray.length >= MAX_FILES) {
+            alert(`Нельзя загрузить больше ${MAX_FILES} изображений`)
+            return
+        }
+        filesArray.push(file)
+    })
     renderPreviews()
 })
 

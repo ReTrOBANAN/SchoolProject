@@ -66,7 +66,7 @@
                 </div>
                 <div class="answer-text">{{ result[4] }}</div>
                 {% if images %}
-                <div class="question-images">
+                <div class="question-images scale">
                     {% for img in images %}
                     <img src="{{ url_for('static', path=img) }}" alt="Изображение вопроса" onclick="openModal(this)">
                     {% endfor %}

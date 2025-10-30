@@ -26,17 +26,28 @@ function render(questions = []) {
 
 function toHTML(question) {
     return `<li class="questions-content-item">
-        <div class="questions-item-header">
-            <div class="item-header-name">${question.name} (${question.username})</div>
-            <div class="item-header-subject">${question.subject}</div>
-            <div class="item-header-grade">${question.grade} класс</div>
-            <div class="item-header-time">${timeAgo(question.created_at)}</div>
-        </div>
-        <div class="questions-item-body">${question.text}</div>
-        <div class="questions-item-footer">
-            <a class="btn" href="/question/${question.id}">Посмотреть</a>
-        </div>
-    </li>`
+            <div class="questions-item-header">
+                <a href="/profile/${question.username}" class="item-header-name link">
+                    ${question.name} (${question.username})
+                </a>
+                <div class="item-header-subject">${question.subject}</div>
+                <div class="item-header-grade">${question.grade} класс</div>
+                <div class="item-header-time">${timeAgo(question.created_at)}</div>
+            </div>
+            <div class="questions-item-body">${question.text}</div>
+
+            ${question.images && question.images.length > 0 ? `
+                <div class="question-images">
+                    ${question.images.map(src => `
+                        <img src="${src}" alt="Изображение вопроса" class="question-image">
+                    `).join('')}
+                </div>
+            ` : ''}
+
+            <div class="questions-item-footer">
+                <a class="btn" href="question/${question.id}">Ответить</a>
+            </div>
+        </li>`
 }
 
 
